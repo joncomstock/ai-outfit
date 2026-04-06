@@ -7,13 +7,7 @@ import { closetItemsTable } from "@/db/schema/closet-items";
 import { uploadClothingImage } from "@/lib/storage/upload";
 import { analyzeClothingImage } from "@/lib/ai/analyze-clothing";
 import { createJob } from "@/lib/jobs/job-store";
-
-async function getUserId(clerkId: string): Promise<string | null> {
-  const user = await db.query.users.findFirst({
-    where: eq(usersTable.clerkId, clerkId),
-  });
-  return user?.id ?? null;
-}
+import { ensureUser } from "@/lib/auth/ensure-user";
 
 export async function POST(req: NextRequest) {
   const { userId: clerkId } = await auth();
@@ -21,7 +15,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const dbUserId = await getUserId(clerkId);
+  const dbUserId = await ensureUser(clerkId);
   if (!dbUserId) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
@@ -79,7 +73,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const dbUserId = await getUserId(clerkId);
+  const dbUserId = await ensureUser(clerkId);
   if (!dbUserId) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }

@@ -45,7 +45,7 @@ export function Nav() {
         </div>
 
         <div className="flex items-center gap-4">
-          <UserButton afterSignOutUrl="/sign-in" />
+          <UserButton />
         </div>
       </nav>
     </header>

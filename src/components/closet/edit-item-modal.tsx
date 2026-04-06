@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/toast";
 import type { ClosetItem } from "@/db/schema/closet-items";
 
 const categories = ["tops", "bottoms", "shoes", "outerwear", "accessories"];
-const fits = ["slim", "regular", "relaxed", "oversized"];
+const fits = ["slim", "regular", "relaxed", "oversized"] as const;
 const seasons = ["spring", "summer", "fall", "winter"];
 
 interface EditItemModalProps {

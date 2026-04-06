@@ -8,11 +8,16 @@ const isPublicRoute = createRouteMatcher([
   "/api/shared/(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect();
+export default clerkMiddleware(
+  async (auth, req) => {
+    if (!isPublicRoute(req)) {
+      await auth.protect();
+    }
+  },
+  {
+    contentSecurityPolicy: {},
   }
-});
+);
 
 export const config = {
   matcher: [
