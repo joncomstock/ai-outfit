@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { ClosetGrid } from "@/components/closet/closet-grid";
+import { ClosetStats } from "@/components/closet/closet-stats";
 import { UploadModal } from "@/components/closet/upload-modal";
 import type { ClosetItem } from "@/db/schema/closet-items";
 
@@ -36,6 +37,8 @@ export function ClosetPageClient({ initialItems }: ClosetPageClientProps) {
         </div>
         <Button onClick={() => setShowUpload(true)}>Add Item</Button>
       </div>
+
+      {initialItems.length > 0 && <ClosetStats />}
 
       {initialItems.length === 0 ? (
         <EmptyState
