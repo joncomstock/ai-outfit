@@ -56,6 +56,17 @@ export async function POST(req: NextRequest) {
 
   const jobId = createJob(item.id);
 
+  // Update onboarding state if this is the first upload
+  const user = await db.query.users.findFirst({
+    where: eq(usersTable.id, dbUserId),
+  });
+  if (user && user.onboardingState === "signup") {
+    await db
+      .update(usersTable)
+      .set({ onboardingState: "first_upload" })
+      .where(eq(usersTable.id, dbUserId));
+  }
+
   // Fire and forget — analysis runs in the background
   analyzeClothingImage(item.id, imageUrl, jobId).catch(console.error);
 

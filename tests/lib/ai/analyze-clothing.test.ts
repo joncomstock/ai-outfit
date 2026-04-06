@@ -20,11 +20,25 @@ vi.mock("@/db", () => ({
         where: vi.fn().mockResolvedValue(undefined),
       }),
     }),
+    select: vi.fn().mockReturnValue({
+      from: vi.fn().mockReturnValue({
+        where: vi.fn().mockResolvedValue([{ id: "item-123", userId: "db-user-uuid" }]),
+      }),
+    }),
+    query: {
+      users: {
+        findFirst: vi.fn().mockResolvedValue({ id: "db-user-uuid", onboardingState: "first_upload" }),
+      },
+    },
   },
 }));
 
 vi.mock("@/db/schema/closet-items", () => ({
   closetItemsTable: { id: "id" },
+}));
+
+vi.mock("@/db/schema/users", () => ({
+  usersTable: { id: "id", clerkId: "clerk_id" },
 }));
 
 vi.mock("@/lib/jobs/job-store", () => ({

@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { closetItemsTable } from "@/db/schema/closet-items";
+import { usersTable } from "@/db/schema/users";
 import { updateJobStatus } from "@/lib/jobs/job-store";
 
 const anthropic = new Anthropic();
@@ -76,6 +77,24 @@ export async function analyzeClothingImage(
         aiRawResponse: result,
       })
       .where(eq(closetItemsTable.id, itemId));
+
+    // Update onboarding state if this is the first processed item
+    const updatedItems = await db
+      .select()
+      .from(closetItemsTable)
+      .where(eq(closetItemsTable.id, itemId));
+    if (updatedItems.length > 0) {
+      const itemUserId = updatedItems[0].userId;
+      const user = await db.query.users.findFirst({
+        where: eq(usersTable.id, itemUserId),
+      });
+      if (user && user.onboardingState === "first_upload") {
+        await db
+          .update(usersTable)
+          .set({ onboardingState: "first_processed" })
+          .where(eq(usersTable.id, itemUserId));
+      }
+    }
 
     updateJobStatus(jobId, "ready");
   } catch (err) {
