@@ -1,1 +1,41 @@
-/* Design system styles — Tailwind added in Task 2 */
+@import "tailwindcss";
+@config "../../tailwind.config.ts";
+
+@layer base {
+  * {
+    border-radius: 0 !important;
+  }
+
+  body {
+    @apply bg-surface text-on-surface font-sans text-body-lg antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif;
+  }
+}
+
+@layer utilities {
+  .editorial-gradient {
+    background: linear-gradient(45deg, #974232, #b65948);
+  }
+
+  .glass {
+    background: rgba(251, 249, 246, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .ghost-border {
+    outline: 1px solid rgba(219, 193, 188, 0.2);
+  }
+
+  .label-text {
+    @apply text-label-lg uppercase tracking-widest;
+  }
+}
