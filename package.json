@@ -20,6 +20,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.33.0",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
     "@clerk/nextjs": "^7.0.8",
     "@neondatabase/serverless": "^1.0.2",
     "@tailwindcss/postcss": "^4.2.2",
