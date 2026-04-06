@@ -13,6 +13,10 @@ const categories = [
   "accessories",
 ];
 
+const seasons = ["all seasons", "spring", "summer", "fall", "winter"];
+
+const sortOptions = ["newest", "oldest"];
+
 interface ClosetGridProps {
   items: ClosetItem[];
   onItemClick?: (item: ClosetItem) => void;
@@ -20,31 +24,102 @@ interface ClosetGridProps {
 
 export function ClosetGrid({ items, onItemClick }: ClosetGridProps) {
   const [activeCategory, setActiveCategory] = useState("all");
+  const [activeSeason, setActiveSeason] = useState("all seasons");
+  const [sortBy, setSortBy] = useState("newest");
 
-  const filtered =
+  let filtered =
     activeCategory === "all"
       ? items
       : items.filter((item) => item.category === activeCategory);
 
+  if (activeSeason !== "all seasons") {
+    filtered = filtered.filter((item) =>
+      item.seasonality?.some(
+        (s) => s.toLowerCase() === activeSeason.toLowerCase()
+      )
+    );
+  }
+
+  if (sortBy === "oldest") {
+    filtered = [...filtered].sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
+  } else {
+    filtered = [...filtered].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
   return (
     <div>
-      <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
-        {categories.map((cat) => (
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-3 mb-8">
+        <FilterDropdown
+          value={activeCategory}
+          options={categories}
+          onChange={setActiveCategory}
+          formatLabel={(v) =>
+            v === "all" ? "ALL CATEGORIES" : v.toUpperCase()
+          }
+        />
+        <FilterDropdown
+          value={activeSeason}
+          options={seasons}
+          onChange={setActiveSeason}
+          formatLabel={(v) =>
+            v === "all seasons" ? "SEASONALITY" : v.toUpperCase()
+          }
+        />
+        <FilterDropdown
+          value={sortBy}
+          options={sortOptions}
+          onChange={setSortBy}
+          formatLabel={(v) => `SORT BY: ${v.toUpperCase()}`}
+        />
+
+        <div className="ml-auto flex items-center gap-1">
           <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
-            className={`label-text whitespace-nowrap px-4 py-2 transition-colors duration-150 ${
-              activeCategory === cat
-                ? "text-primary border-b-2 border-primary"
-                : "text-on-surface-variant hover:text-on-surface"
-            }`}
+            className="p-2 text-on-surface-variant hover:text-on-surface transition-colors"
+            aria-label="Grid view"
           >
-            {cat}
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <rect x="1" y="1" width="5.5" height="5.5" />
+              <rect x="9.5" y="1" width="5.5" height="5.5" />
+              <rect x="1" y="9.5" width="5.5" height="5.5" />
+              <rect x="9.5" y="9.5" width="5.5" height="5.5" />
+            </svg>
           </button>
-        ))}
+          <button
+            className="p-2 text-on-surface-variant hover:text-on-surface transition-colors"
+            aria-label="List view"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              <line x1="1" y1="3" x2="15" y2="3" />
+              <line x1="1" y1="8" x2="15" y2="8" />
+              <line x1="1" y1="13" x2="15" y2="13" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {/* Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {filtered.map((item) => (
           <ClosetItemCard
             key={item.id}
@@ -53,6 +128,78 @@ export function ClosetGrid({ items, onItemClick }: ClosetGridProps) {
           />
         ))}
       </div>
+
+      {filtered.length === 0 && (
+        <p className="text-center text-on-surface-variant text-body-lg py-16">
+          No items match the current filters.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ---- Filter Dropdown Button ---- */
+
+interface FilterDropdownProps {
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+  formatLabel: (value: string) => string;
+}
+
+function FilterDropdown({
+  value,
+  options,
+  onChange,
+  formatLabel,
+}: FilterDropdownProps) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="bg-surface-container-lowest shadow-ambient px-4 py-2.5 flex items-center gap-2 label-text text-xs text-on-surface hover:bg-surface-container-low transition-colors"
+      >
+        {formatLabel(value)}
+        <svg
+          width="10"
+          height="10"
+          viewBox="0 0 10 10"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          className={`transition-transform ${open ? "rotate-180" : ""}`}
+        >
+          <path d="M2 3.5L5 6.5L8 3.5" />
+        </svg>
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute top-full left-0 mt-1 z-20 bg-surface-container-lowest shadow-ambient min-w-[180px]">
+            {options.map((opt) => (
+              <button
+                key={opt}
+                onClick={() => {
+                  onChange(opt);
+                  setOpen(false);
+                }}
+                className={`block w-full text-left px-4 py-2.5 label-text text-xs transition-colors ${
+                  value === opt
+                    ? "text-primary bg-surface-container-low"
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low"
+                }`}
+              >
+                {opt === "all" || opt === "all seasons"
+                  ? opt.toUpperCase()
+                  : opt.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

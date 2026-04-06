@@ -26,19 +26,38 @@ export function ClosetPageClient({ initialItems }: ClosetPageClientProps) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-10">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
         <div>
-          <h1 className="font-serif text-display-sm text-on-surface">
-            Your Closet
+          <p className="label-text text-on-surface-variant mb-3">
+            ARCHIVE MANAGEMENT
+          </p>
+          <h1 className="font-serif text-display-sm text-on-surface mb-3">
+            Your Digital Closet
           </h1>
-          <p className="text-body-lg text-on-surface-variant mt-1">
-            {initialItems.length} items
+          <p className="text-body-lg text-on-surface-variant max-w-lg">
+            A curated perspective on your personal style. High-resolution
+            catalog of your seasonal rotations and timeless essentials.
           </p>
         </div>
-        <Button onClick={() => setShowUpload(true)}>Add Item</Button>
+        <div className="flex-shrink-0">
+          <Button onClick={() => setShowUpload(true)}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 14 14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="mr-2"
+            >
+              <line x1="7" y1="1" x2="7" y2="13" />
+              <line x1="1" y1="7" x2="13" y2="7" />
+            </svg>
+            UPLOAD NEW ITEM
+          </Button>
+        </div>
       </div>
-
-      {initialItems.length > 0 && <ClosetStats />}
 
       {initialItems.length === 0 ? (
         <EmptyState
@@ -48,7 +67,15 @@ export function ClosetPageClient({ initialItems }: ClosetPageClientProps) {
           onAction={() => setShowUpload(true)}
         />
       ) : (
-        <ClosetGrid items={initialItems} />
+        /* Two-column layout: sidebar + main grid */
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="w-full lg:w-[280px] flex-shrink-0">
+            <ClosetStats />
+          </div>
+          <div className="flex-1 min-w-0">
+            <ClosetGrid items={initialItems} />
+          </div>
+        </div>
       )}
 
       <UploadModal
