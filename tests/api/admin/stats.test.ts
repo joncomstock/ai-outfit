@@ -12,9 +12,15 @@ vi.mock("@/lib/auth/ensure-user", () => ({
 }));
 vi.mock("@/db", () => {
   const fromResult = [{ value: 42 }];
+  const whereMock = vi.fn().mockResolvedValue(fromResult);
+  const andWhereMock = vi.fn().mockResolvedValue(fromResult);
   const fromMock = vi.fn().mockImplementation(() => {
     const result = Promise.resolve(fromResult);
-    (result as any).where = vi.fn().mockResolvedValue(fromResult);
+    (result as any).where = vi.fn().mockImplementation(() => {
+      const r = Promise.resolve(fromResult);
+      (r as any).where = andWhereMock;
+      return r;
+    });
     return result;
   });
   return {
@@ -32,7 +38,12 @@ vi.mock("@/db/schema/trends", () => ({
   trendProductsTable: {},
   savedTrendsTable: {},
 }));
-vi.mock("@/db/schema/affiliate", () => ({ affiliateClicksTable: {} }));
+vi.mock("@/db/schema/affiliate", () => ({ affiliateClicksTable: { createdAt: "created_at" } }));
+vi.mock("@/db/schema/outfits", () => ({
+  outfitsTable: { createdAt: "created_at", shareToken: "share_token" },
+  outfitSlotsTable: {},
+}));
+vi.mock("@/db/schema/closet-items", () => ({ closetItemsTable: { createdAt: "created_at" } }));
 
 describe("GET /api/admin/stats", () => {
   it("returns dashboard stats", async () => {
@@ -44,5 +55,17 @@ describe("GET /api/admin/stats", () => {
     expect(body).toHaveProperty("totalProducts");
     expect(body).toHaveProperty("activeTrends");
     expect(body).toHaveProperty("totalClicks");
+    expect(body).toHaveProperty("totalOutfits");
+    expect(body).toHaveProperty("totalClosetItems");
+    expect(body).toHaveProperty("sharedOutfits");
+    expect(body).toHaveProperty("range");
+  });
+
+  it("accepts time range parameter", async () => {
+    const req = new NextRequest("http://localhost/api/admin/stats?range=30d");
+    const res = await GET(req);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.range).toBe("30d");
   });
 });
