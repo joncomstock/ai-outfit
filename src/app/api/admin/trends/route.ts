@@ -55,17 +55,33 @@ export async function PATCH(req: NextRequest) {
   if (!adminId) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await req.json();
-  const { id, ...updates } = body;
+  const { id } = body;
 
   if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
 
-  if (updates.name) {
-    updates.slug = slugify(updates.name);
+  const allowedFields = [
+    "name", "description", "heroImageUrl", "category",
+    "momentumScore", "season", "styleTags", "status",
+  ] as const;
+
+  const safeUpdates: Record<string, unknown> = {};
+  for (const field of allowedFields) {
+    if (body[field] !== undefined) {
+      safeUpdates[field] = body[field];
+    }
+  }
+
+  if (safeUpdates.name) {
+    safeUpdates.slug = slugify(safeUpdates.name as string);
+  }
+
+  if (Object.keys(safeUpdates).length === 0) {
+    return NextResponse.json({ error: "No valid fields to update" }, { status: 400 });
   }
 
   const [updated] = await db
     .update(trendsTable)
-    .set(updates)
+    .set(safeUpdates)
     .where(eq(trendsTable.id, id))
     .returning();
 

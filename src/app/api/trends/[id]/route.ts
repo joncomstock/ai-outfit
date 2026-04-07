@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { trendsTable, trendProductsTable, savedTrendsTable } from "@/db/schema/trends";
 import { productsTable } from "@/db/schema/products";
@@ -39,7 +39,10 @@ export async function GET(
     .where(eq(trendProductsTable.trendId, id));
 
   const saved = await db.query.savedTrends.findFirst({
-    where: eq(savedTrendsTable.trendId, id),
+    where: and(
+      eq(savedTrendsTable.userId, dbUserId),
+      eq(savedTrendsTable.trendId, id)
+    ),
   });
 
   return NextResponse.json({ trend, products, isSaved: !!saved });
