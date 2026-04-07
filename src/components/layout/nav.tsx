@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 const navItems = [
   { href: "/", label: "Dashboard" },
@@ -45,6 +46,13 @@ export function Nav() {
         </div>
 
         <div className="flex items-center gap-4">
+          <NotificationBell />
+          <Link
+            href="/profile"
+            className="text-body-md text-on-surface-variant hover:text-on-surface transition-colors font-sans hidden md:block"
+          >
+            Profile
+          </Link>
           <UserButton />
         </div>
       </nav>
