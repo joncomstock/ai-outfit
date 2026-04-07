@@ -89,7 +89,7 @@ export default async function Dashboard() {
           <span className="label-text text-on-surface-variant tracking-widest mb-6">
             STYLE INTELLIGENCE
           </span>
-          <h1 className="font-serif text-display-md text-on-surface leading-tight mb-6">
+          <h1 className="font-serif text-display-sm md:text-display-md text-on-surface leading-tight mb-6">
             Your Personal
             <br />
             <span className="italic text-primary">AI Stylist</span>
@@ -111,7 +111,7 @@ export default async function Dashboard() {
       </section>
 
       {/* ── Stats Row ── */}
-      <section className="grid grid-cols-3 gap-8 py-12 mb-16 border-t border-b border-outline-variant">
+      <section className="grid grid-cols-3 gap-3 md:gap-8 py-12 mb-16 border-t border-b border-outline-variant">
         {[
           { value: itemCount, label: "Items" },
           { value: outfitCount, label: "Outfits" },
@@ -139,7 +139,7 @@ export default async function Dashboard() {
               <Button variant="tertiary">View All</Button>
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
             {recentItems.map((item) => (
               <ClosetItemCard key={item.id} item={item} />
             ))}
@@ -195,7 +195,7 @@ export default async function Dashboard() {
         <div className="flex gap-6 overflow-x-auto pb-4">
           {trends.length > 0
             ? trends.map((trend) => (
-                <Link key={trend.id} href={`/trends/${trend.id}`} className="flex-shrink-0 w-56 group">
+                <Link key={trend.id} href={`/trends/${trend.id}`} className="flex-shrink-0 w-44 md:w-56 group">
                   <div className="aspect-[3/4] bg-surface-container-low mb-3 relative overflow-hidden">
                     {trend.heroImageUrl && (
                       <img src={trend.heroImageUrl} alt={trend.name} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-[1.03]" />
@@ -211,7 +211,7 @@ export default async function Dashboard() {
               ))
             : ["Quiet Luxury", "Coastal Grandmother", "Dark Academia", "Old Money"].map(
                 (name) => (
-                  <div key={name} className="flex-shrink-0 w-56">
+                  <div key={name} className="flex-shrink-0 w-44 md:w-56">
                     <div className="aspect-[3/4] bg-surface-container-low mb-3" />
                     <p className="font-serif text-body-lg text-on-surface">
                       {name}

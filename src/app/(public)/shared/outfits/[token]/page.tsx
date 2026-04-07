@@ -139,7 +139,7 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
 
           {/* Secondary slots */}
           {secondarySlots.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
               {secondarySlots.map((slot) => (
                 <OutfitSlot
                   key={slot.id}

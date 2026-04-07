@@ -81,7 +81,7 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
       <div className="space-y-8">
         <div>
           <p className="label-text text-on-surface-variant mb-4">GENERATION MODE</p>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
             <button onClick={() => setMode("for_you")} className={`flex-1 p-6 text-left transition-colors ${mode === "for_you" ? "bg-primary-fixed/30 ghost-border" : "bg-surface-container-low hover:bg-surface-container"}`}>
               <p className="font-serif text-title-md text-on-surface mb-1">For You</p>
               <p className="text-body-md text-on-surface-variant">AI picks the best combination from your entire closet.</p>
@@ -100,7 +100,7 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
         {mode === "style_this" && (
           <div>
             <p className="label-text text-on-surface-variant mb-4">SELECT AN ITEM</p>
-            <div className="grid grid-cols-4 gap-3 max-h-60 overflow-y-auto">
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-60 overflow-y-auto">
               {readyItems.map((item) => (
                 <button key={item.id} onClick={() => setSelectedItem(item.id)} className={`aspect-[3/4] relative overflow-hidden ${selectedItem === item.id ? "ring-2 ring-primary" : "opacity-70 hover:opacity-100"}`}>
                   <img src={item.imageUrl} alt={item.subCategory ?? "item"} className="w-full h-full object-cover" />

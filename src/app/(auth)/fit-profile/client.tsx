@@ -111,7 +111,7 @@ export function FitProfileClient({ profile }: FitProfileClientProps) {
 
       {/* Fit Recommendations */}
       <section className="mb-12 pb-12 border-b border-outline-variant/10">
-        <div className="bg-primary text-on-primary p-8">
+        <div className="bg-primary text-on-primary p-5 md:p-8">
           <p className="label-text tracking-widest mb-4 opacity-80">FIT RECOMMENDATIONS</p>
           <ul className="space-y-3 text-body-lg">
             <li className="flex items-start gap-3">

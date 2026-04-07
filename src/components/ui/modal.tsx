@@ -69,13 +69,13 @@ export function Modal({
         className={`relative bg-surface-container-lowest shadow-ambient-lg w-full max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300 ${className}`}
       >
         {title && (
-          <div className="flex items-center justify-between px-10 pt-10 pb-6">
+          <div className="flex items-center justify-between px-5 md:px-10 pt-6 md:pt-10 pb-4 md:pb-6">
             <h2 className="font-serif text-headline-md text-on-surface">
               {title}
             </h2>
             <button
               onClick={onClose}
-              className="text-on-surface-variant hover:text-on-surface transition-colors p-2"
+              className="text-on-surface-variant hover:text-on-surface transition-colors p-3"
               aria-label="Close"
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -84,7 +84,7 @@ export function Modal({
             </button>
           </div>
         )}
-        <div className="px-10 pb-10">{children}</div>
+        <div className="px-5 md:px-10 pb-6 md:pb-10">{children}</div>
       </div>
     </div>
   );

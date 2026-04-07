@@ -73,7 +73,7 @@ export function CatalogClient({ initialProducts, brands }: CatalogClientProps) {
             <span className="label-text text-on-surface-variant tracking-widest mb-6 block">
               CURATED COLLECTION
             </span>
-            <h1 className="font-serif text-display-lg text-on-surface leading-tight">
+            <h1 className="font-serif text-display-sm md:text-display-lg text-on-surface leading-tight">
               The Digital
               <br />
               <span className="italic text-primary">Curator.</span>

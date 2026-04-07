@@ -77,7 +77,7 @@ export function UploadModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Add to Closet" className="max-w-lg">
       <div
-        className={`border-2 border-dashed p-12 text-center transition-colors duration-200 ${
+        className={`border-2 border-dashed p-6 md:p-12 text-center transition-colors duration-200 ${
           isDragging
             ? "border-primary bg-primary-fixed/20"
             : "border-outline-variant/30 hover:border-outline-variant/60"

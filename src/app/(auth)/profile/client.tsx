@@ -182,7 +182,7 @@ export function ProfileClient({ user }: ProfileClientProps) {
       <section className="mb-12 pb-12 border-b border-outline-variant/10">
         <p className="label-text text-on-surface-variant tracking-widest mb-6">YOUR PALETTE</p>
         {topColors.length > 0 ? (
-          <div className="flex flex-wrap gap-6">
+          <div className="flex flex-wrap gap-3 md:gap-6">
             {topColors.map(([color, count]) => {
               const pct = totalColorCount > 0 ? Math.round((count / totalColorCount) * 100) : 0;
               return (

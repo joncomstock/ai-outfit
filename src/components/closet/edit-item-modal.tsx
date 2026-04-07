@@ -78,9 +78,9 @@ export function EditItemModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Item" className="max-w-2xl">
-      <div className="flex gap-8">
-        <div className="w-48 shrink-0">
-          <div className="aspect-[3/4] relative">
+      <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+        <div className="w-full md:w-48 shrink-0">
+          <div className="aspect-[4/3] md:aspect-[3/4] relative">
             <Image
               src={item.imageUrl}
               alt={item.subCategory ?? "Clothing item"}

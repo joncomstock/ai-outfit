@@ -68,7 +68,7 @@ export function ClosetPageClient({ initialItems }: ClosetPageClientProps) {
         />
       ) : (
         /* Two-column layout: sidebar + main grid */
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
           <div className="w-full lg:w-[280px] flex-shrink-0">
             <ClosetStats />
           </div>
