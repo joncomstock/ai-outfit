@@ -3,10 +3,12 @@ import { eq, desc, count } from "drizzle-orm";
 import { db } from "@/db";
 import { usersTable } from "@/db/schema/users";
 import { closetItemsTable } from "@/db/schema/closet-items";
-import { outfitsTable } from "@/db/schema/outfits";
+import { outfitsTable, outfitSlotsTable } from "@/db/schema/outfits";
+import { trendsTable } from "@/db/schema/trends";
 import { ensureUser } from "@/lib/auth/ensure-user";
 import { Button } from "@/components/ui/button";
 import { ClosetItemCard } from "@/components/closet/closet-item-card";
+import { OutfitCard } from "@/components/outfits/outfit-card";
 import { ProgressIndicator } from "@/components/onboarding/progress-indicator";
 import Link from "next/link";
 
@@ -42,6 +44,35 @@ export default async function Dashboard() {
     .where(eq(outfitsTable.userId, user.id));
 
   const outfitCount = outfitCountResult?.value ?? 0;
+
+  const recentOutfitsRaw = await db
+    .select()
+    .from(outfitsTable)
+    .where(eq(outfitsTable.userId, user.id))
+    .orderBy(desc(outfitsTable.createdAt))
+    .limit(4);
+
+  const recentOutfits = await Promise.all(
+    recentOutfitsRaw.map(async (outfit) => {
+      const slots = await db
+        .select({
+          slotType: outfitSlotsTable.slotType,
+          itemImageUrl: closetItemsTable.imageUrl,
+          itemSubCategory: closetItemsTable.subCategory,
+        })
+        .from(outfitSlotsTable)
+        .leftJoin(closetItemsTable, eq(outfitSlotsTable.closetItemId, closetItemsTable.id))
+        .where(eq(outfitSlotsTable.outfitId, outfit.id));
+      return { ...outfit, slots };
+    })
+  );
+
+  const trends = await db
+    .select()
+    .from(trendsTable)
+    .where(eq(trendsTable.status, "published"))
+    .orderBy(desc(trendsTable.momentumScore))
+    .limit(4);
 
   const hasItems = recentItems.length > 0;
 
@@ -116,54 +147,78 @@ export default async function Dashboard() {
         </section>
       )}
 
-      {/* ── Featured Curation (Coming Soon) ── */}
+      {/* ── Featured Curation ── */}
       <section className="mb-16">
         <div className="flex items-center justify-between mb-8">
           <h2 className="font-serif text-headline-md text-on-surface">
             Featured Curation
           </h2>
-          <span className="label-text text-on-surface-variant tracking-widest">
-            COMING IN PHASE 2
-          </span>
+          <Link href="/outfits">
+            <Button variant="tertiary">View All</Button>
+          </Link>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
-          <div className="aspect-[4/5] bg-surface-container-low flex items-end p-6">
-            <p className="font-serif text-headline-md text-on-surface-variant">
-              Curated looks from your wardrobe
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-6">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="aspect-[3/4] bg-surface-container-low"
-              />
+        {recentOutfits.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {recentOutfits.map((outfit) => (
+              <OutfitCard key={outfit.id} outfit={outfit} />
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-6">
+            <div className="aspect-[4/5] bg-surface-container-low flex items-end p-6">
+              <p className="font-serif text-headline-md text-on-surface-variant">
+                Curated looks from your wardrobe
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="aspect-[3/4] bg-surface-container-low"
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
-      {/* ── Trending Styles (Coming Soon) ── */}
+      {/* ── Trending Styles ── */}
       <section className="mb-16">
         <div className="flex items-center justify-between mb-8">
           <h2 className="font-serif text-headline-md text-on-surface">
             Trending Styles
           </h2>
-          <span className="label-text text-on-surface-variant tracking-widest">
-            COMING IN PHASE 2
-          </span>
+          <Link href="/trends">
+            <Button variant="tertiary">View All</Button>
+          </Link>
         </div>
         <div className="flex gap-6 overflow-x-auto pb-4">
-          {["Quiet Luxury", "Coastal Grandmother", "Dark Academia", "Old Money"].map(
-            (trend) => (
-              <div key={trend} className="flex-shrink-0 w-56">
-                <div className="aspect-[3/4] bg-surface-container-low mb-3" />
-                <p className="font-serif text-body-lg text-on-surface">
-                  {trend}
-                </p>
-              </div>
-            )
-          )}
+          {trends.length > 0
+            ? trends.map((trend) => (
+                <Link key={trend.id} href={`/trends/${trend.id}`} className="flex-shrink-0 w-56 group">
+                  <div className="aspect-[3/4] bg-surface-container-low mb-3 relative overflow-hidden">
+                    {trend.heroImageUrl && (
+                      <img src={trend.heroImageUrl} alt={trend.name} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-[1.03]" />
+                    )}
+                  </div>
+                  <p className="font-serif text-body-lg text-on-surface">
+                    {trend.name}
+                  </p>
+                  <span className="label-text text-on-surface-variant text-label-md tracking-widest uppercase">
+                    {trend.category.replace("_", " ")}
+                  </span>
+                </Link>
+              ))
+            : ["Quiet Luxury", "Coastal Grandmother", "Dark Academia", "Old Money"].map(
+                (name) => (
+                  <div key={name} className="flex-shrink-0 w-56">
+                    <div className="aspect-[3/4] bg-surface-container-low mb-3" />
+                    <p className="font-serif text-body-lg text-on-surface">
+                      {name}
+                    </p>
+                  </div>
+                )
+              )}
         </div>
       </section>
     </div>
