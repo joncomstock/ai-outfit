@@ -47,7 +47,9 @@ export function ClosetStats() {
 
   if (!stats) return null;
 
-  const topColors = Object.entries(stats.colorFrequency)
+  const colorEntries = Object.entries(stats.colorFrequency);
+  const totalColorOccurrences = colorEntries.reduce((sum, [, n]) => sum + n, 0);
+  const topColors = colorEntries
     .sort(([, a], [, b]) => b - a)
     .slice(0, 6);
 
@@ -101,18 +103,26 @@ export function ClosetStats() {
               <p className="label-text text-on-surface-variant text-xs mb-2">
                 PALETTE
               </p>
-              <div className="flex flex-wrap gap-3">
-                {topColors.map(([color]) => (
-                  <div key={color} className="flex flex-col items-center gap-1">
-                    <span
-                      className="w-8 h-8 block"
-                      style={{ backgroundColor: color }}
-                    />
-                    <span className="text-[9px] tracking-widest uppercase text-on-surface-variant font-sans">
-                      {getColorName(color)}
-                    </span>
-                  </div>
-                ))}
+              <div className="flex flex-col gap-2">
+                {topColors.map(([color, count]) => {
+                  const pct = totalColorOccurrences > 0
+                    ? Math.round((count / totalColorOccurrences) * 100)
+                    : 0;
+                  return (
+                    <div key={color} className="flex items-center gap-3">
+                      <span
+                        className="w-6 h-6 block shrink-0"
+                        style={{ backgroundColor: color }}
+                      />
+                      <span className="text-[10px] tracking-widest uppercase text-on-surface-variant font-sans">
+                        {getColorName(color)}
+                      </span>
+                      <span className="ml-auto text-[10px] tracking-widest uppercase text-on-surface font-sans font-semibold">
+                        {pct}%
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
