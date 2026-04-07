@@ -32,6 +32,15 @@ export function FitProfileClient({ profile }: FitProfileClientProps) {
   });
   const [brandFitNotes, setBrandFitNotes] = useState(profile.brandFitNotes);
   const [saving, setSaving] = useState(false);
+  const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
+
+  const fitPreferenceOptions = ["Slim Fit", "Regular", "Relaxed", "Oversized"];
+
+  const togglePreference = (pref: string) => {
+    setSelectedPreferences((prev) =>
+      prev.includes(pref) ? prev.filter((p) => p !== pref) : [...prev, pref]
+    );
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -98,6 +107,54 @@ export function FitProfileClient({ profile }: FitProfileClientProps) {
             No brand-specific fit notes yet. Use the fit feedback modal when viewing outfit items to add notes.
           </p>
         )}
+      </section>
+
+      {/* Fit Recommendations */}
+      <section className="mb-12 pb-12 border-b border-outline-variant/10">
+        <div className="bg-primary text-on-primary p-8">
+          <p className="label-text tracking-widest mb-4 opacity-80">FIT RECOMMENDATIONS</p>
+          <ul className="space-y-3 text-body-lg">
+            <li className="flex items-start gap-3">
+              <span className="mt-1.5 w-1.5 h-1.5 bg-on-primary shrink-0" />
+              Structured shoulders complement your frame
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="mt-1.5 w-1.5 h-1.5 bg-on-primary shrink-0" />
+              Mid-rise waistlines create balanced proportions
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="mt-1.5 w-1.5 h-1.5 bg-on-primary shrink-0" />
+              Extended cuffs add visual length
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="mt-1.5 w-1.5 h-1.5 bg-on-primary shrink-0" />
+              Monochromatic layering creates a streamlined silhouette
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      {/* Fit Preferences */}
+      <section className="mb-12 pb-12 border-b border-outline-variant/10">
+        <p className="label-text text-on-surface-variant tracking-widest mb-4">FIT PREFERENCES</p>
+        <p className="text-body-md text-on-surface-variant mb-6">
+          Select your preferred fit styles. This helps the AI tailor outfit suggestions to your comfort.
+        </p>
+        <div className="flex flex-wrap gap-3">
+          {fitPreferenceOptions.map((pref) => (
+            <button
+              key={pref}
+              onClick={() => togglePreference(pref)}
+              className={`label-text px-6 py-3 border transition-colors duration-150 ${
+                selectedPreferences.includes(pref)
+                  ? "bg-primary text-on-primary border-primary"
+                  : "bg-transparent text-on-surface border-outline-variant/30 hover:border-on-surface"
+              }`}
+            >
+              {pref.toUpperCase()}
+            </button>
+          ))}
+        </div>
       </section>
 
       {/* Save */}
