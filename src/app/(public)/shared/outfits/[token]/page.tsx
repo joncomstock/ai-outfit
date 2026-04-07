@@ -82,33 +82,51 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
       </header>
 
       <main className="mx-auto max-w-[1200px] px-6 py-8">
-        {/* Editorial header */}
-        <div className="mb-12">
-          <span className="label-text text-on-surface-variant tracking-widest mb-3 block">
-            CURATED OUTFIT — {createdDate.toUpperCase()}
-          </span>
-          <h1 className="font-serif text-display-sm text-on-surface">
-            {outfit.name || "Untitled Outfit"}
-          </h1>
-        </div>
-
-        {/* Primary slots (top + bottom) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          {primarySlots.map((slot) => (
-            <OutfitSlot
-              key={slot.id}
-              slotType={slot.slotType}
-              imageUrl={slot.itemImageUrl}
-              category={slot.itemCategory}
-              subCategory={slot.itemSubCategory}
+        {/* Hero image */}
+        {sortedSlots[0]?.itemImageUrl && (
+          <div className="aspect-[16/9] relative overflow-hidden bg-surface-container-low mb-12">
+            <img
+              src={sortedSlots[0].itemImageUrl}
+              alt={outfit.name || "Outfit hero"}
+              className="w-full h-full object-cover"
             />
-          ))}
-        </div>
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-on-surface/60 to-transparent p-8">
+              <span className="label-text text-white/80 tracking-widest mb-2 block">
+                CURATED OUTFIT — {createdDate.toUpperCase()}
+              </span>
+              <h1 className="font-serif text-display-sm text-white">
+                {outfit.name || "Untitled Outfit"}
+              </h1>
+            </div>
+          </div>
+        )}
 
-        {/* Secondary slots */}
-        {secondarySlots.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-16">
-            {secondarySlots.map((slot) => (
+        {/* Editorial Note */}
+        <section className="mb-16 max-w-2xl">
+          <span className="label-text text-on-surface-variant tracking-widest mb-4 block">
+            EDITORIAL NOTE
+          </span>
+          <h2 className="font-serif text-headline-lg text-on-surface mb-4">
+            {outfit.name || "Untitled Outfit"}
+          </h2>
+          <p className="text-body-lg text-on-surface-variant leading-relaxed">
+            {typeof outfit.aiRawResponse === "object" &&
+            outfit.aiRawResponse !== null &&
+            "description" in outfit.aiRawResponse
+              ? String((outfit.aiRawResponse as Record<string, unknown>).description)
+              : "A carefully considered composition balancing silhouette, texture, and proportion. Each piece has been selected to create a cohesive narrative that moves effortlessly from context to context."}
+          </p>
+        </section>
+
+        {/* Outfit Architecture */}
+        <section className="mb-16">
+          <span className="label-text text-on-surface-variant tracking-widest mb-6 block">
+            OUTFIT ARCHITECTURE
+          </span>
+
+          {/* Primary slots (top + bottom) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            {primarySlots.map((slot) => (
               <OutfitSlot
                 key={slot.id}
                 slotType={slot.slotType}
@@ -118,7 +136,22 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
               />
             ))}
           </div>
-        )}
+
+          {/* Secondary slots */}
+          {secondarySlots.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+              {secondarySlots.map((slot) => (
+                <OutfitSlot
+                  key={slot.id}
+                  slotType={slot.slotType}
+                  imageUrl={slot.itemImageUrl}
+                  category={slot.itemCategory}
+                  subCategory={slot.itemSubCategory}
+                />
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* Shop Now — affiliate links */}
         {suggestedProducts.length > 0 && (
