@@ -6,3 +6,5 @@ process.env.CLERK_WEBHOOK_SECRET = "whsec_test_placeholder";
 process.env.DATABASE_URL = "postgresql://test:test@localhost:5432/test";
 process.env.BLOB_READ_WRITE_TOKEN = "vercel_blob_test_token";
 process.env.ANTHROPIC_API_KEY = "sk-ant-test-placeholder";
+process.env.RESEND_API_KEY = "re_test_placeholder";
+process.env.EMAIL_FROM = "noreply@outfitengine.com";
