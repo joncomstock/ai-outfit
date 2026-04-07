@@ -110,6 +110,58 @@ export function AdminDashboardClient() {
         <p className="text-body-md text-error">Failed to load stats.</p>
       )}
 
+      {/* Stream of Activity */}
+      <section className="mt-12">
+        <h2 className="font-serif text-headline-sm text-on-surface mb-6">
+          Stream of Activity
+        </h2>
+        <div className="space-y-3">
+          {[
+            {
+              id: "01",
+              title: 'New trend peak detected in "Raw Minimalism"',
+              description:
+                "Trend velocity exceeded threshold — promoted to featured collection.",
+              timestamp: "2 hours ago",
+            },
+            {
+              id: "02",
+              title: "User uploaded 12 items to catalog",
+              description:
+                "Bulk upload completed with automatic tagging and color extraction.",
+              timestamp: "4 hours ago",
+            },
+            {
+              id: "03",
+              title: "Global reach expanded to Southeast Asia",
+              description:
+                "Regional affiliate partnerships activated for 3 new markets.",
+              timestamp: "6 hours ago",
+            },
+          ].map((event) => (
+            <div
+              key={event.id}
+              className="bg-surface-container-lowest p-5 flex gap-4 items-start"
+            >
+              <span className="font-serif text-headline-sm text-on-surface-variant/40 shrink-0">
+                [{event.id}]
+              </span>
+              <div className="flex-1 min-w-0">
+                <p className="text-body-md text-on-surface font-sans">
+                  {event.title}
+                </p>
+                <p className="text-body-sm text-on-surface-variant mt-0.5">
+                  {event.description}
+                </p>
+              </div>
+              <span className="label-text text-on-surface-variant text-xs tracking-widest shrink-0">
+                {event.timestamp}
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* System Health */}
       <section className="mt-12">
         <h2 className="font-serif text-headline-sm text-on-surface mb-6">
@@ -133,6 +185,19 @@ export function AdminDashboardClient() {
               </p>
             </div>
           ))}
+        </div>
+
+        {/* Optimization Tip */}
+        <div className="editorial-gradient text-on-primary p-6 mt-6">
+          <p className="label-text tracking-widest mb-3">OPTIMIZATION TIP</p>
+          <p className="text-body-md mb-4">
+            The &ldquo;Aesthetic Matching&rdquo; engine is currently using
+            high-resolution color analysis. Consider optimizing the contrast
+            imagery guidelines for contributors.
+          </p>
+          <Button variant="secondary" className="bg-on-primary/10 text-on-primary border-on-primary/20 hover:bg-on-primary/20">
+            REVIEW GUIDELINES
+          </Button>
         </div>
       </section>
     </div>
