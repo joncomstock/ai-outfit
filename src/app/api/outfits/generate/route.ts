@@ -1,0 +1,29 @@
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
+import { ensureUser } from "@/lib/auth/ensure-user";
+import { createJob } from "@/lib/jobs/job-store";
+import { generateOutfit } from "@/lib/ai/generate-outfit";
+
+export async function POST(req: NextRequest) {
+  const { userId: clerkId } = await auth();
+  if (!clerkId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const dbUserId = await ensureUser(clerkId);
+  if (!dbUserId) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  const body = await req.json();
+  const mode = body.mode as "for_you" | "style_this";
+  const sourceItemId = body.sourceItemId as string | undefined;
+
+  if (!mode || !["for_you", "style_this"].includes(mode)) {
+    return NextResponse.json({ error: "Invalid mode" }, { status: 400 });
+  }
+  if (mode === "style_this" && !sourceItemId) {
+    return NextResponse.json({ error: "sourceItemId required for style_this mode" }, { status: 400 });
+  }
+
+  const jobId = createJob("outfit-generation");
+  generateOutfit({ userId: dbUserId, mode, sourceItemId, jobId }).catch(console.error);
+
+  return NextResponse.json({ jobId }, { status: 202 });
+}
