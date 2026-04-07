@@ -73,6 +73,21 @@ export function OutfitDetailClient({ outfit, slots }: OutfitDetailClientProps) {
         <h2 className="font-serif text-headline-sm text-on-surface mb-4 italic">Style Notes</h2>
         <p className="text-body-lg text-on-surface-variant max-w-2xl">{outfit.feedback ?? "Rate this outfit and add your thoughts to help the AI learn your preferences."}</p>
       </section>
+
+      {/* Shop Similar */}
+      <section className="py-12 border-t border-outline-variant/10">
+        <h2 className="font-serif text-headline-sm text-on-surface mb-6">
+          Complete the Look
+        </h2>
+        <p className="text-body-lg text-on-surface-variant mb-6">
+          Shop similar pieces from our curated catalog to recreate this outfit.
+        </p>
+        <div className="flex gap-3">
+          <Button onClick={() => window.location.href = "/catalog"}>
+            BROWSE CATALOG
+          </Button>
+        </div>
+      </section>
     </div>
   );
 }
