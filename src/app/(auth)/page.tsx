@@ -7,6 +7,7 @@ import { outfitsTable } from "@/db/schema/outfits";
 import { ensureUser } from "@/lib/auth/ensure-user";
 import { Button } from "@/components/ui/button";
 import { ClosetItemCard } from "@/components/closet/closet-item-card";
+import { ProgressIndicator } from "@/components/onboarding/progress-indicator";
 import Link from "next/link";
 
 export default async function Dashboard() {
@@ -46,6 +47,11 @@ export default async function Dashboard() {
 
   return (
     <div>
+      {/* ── Onboarding Progress ── */}
+      {user.onboardingState !== "complete" && (
+        <ProgressIndicator currentState={user.onboardingState ?? "signup"} />
+      )}
+
       {/* ── Hero Section ── */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 py-16 mb-16">
         <div className="flex flex-col justify-center">
