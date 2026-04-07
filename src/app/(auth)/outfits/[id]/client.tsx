@@ -1,9 +1,12 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { OutfitSlot } from "@/components/outfits/outfit-slot";
 import { OutfitRating } from "@/components/outfits/outfit-rating";
+import { OutfitCard } from "@/components/outfits/outfit-card";
 import { ShareButton } from "@/components/sharing/share-button";
 import { useToast } from "@/components/ui/toast";
 import type { Outfit } from "@/db/schema/outfits";
@@ -19,12 +22,25 @@ interface SlotWithItem {
   itemColors: string[] | null;
 }
 
+interface ArchiveOutfit extends Outfit {
+  slots?: { slotType: string; itemImageUrl: string | null; itemSubCategory: string | null }[];
+}
+
 interface OutfitDetailClientProps {
   outfit: Outfit;
   slots: SlotWithItem[];
+  archiveOutfits?: ArchiveOutfit[];
 }
 
-export function OutfitDetailClient({ outfit, slots }: OutfitDetailClientProps) {
+const slotLabels: Record<string, string> = {
+  top: "Top",
+  bottom: "Bottom",
+  shoes: "Shoes",
+  outerwear: "Outerwear",
+  accessory: "Accessory",
+};
+
+export function OutfitDetailClient({ outfit, slots, archiveOutfits = [] }: OutfitDetailClientProps) {
   const router = useRouter();
   const { toast } = useToast();
 
@@ -57,39 +73,99 @@ export function OutfitDetailClient({ outfit, slots }: OutfitDetailClientProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        {primarySlots.map((slot) => (
-          <OutfitSlot key={slot.id} slotType={slot.slotType} imageUrl={slot.itemImageUrl} category={slot.itemCategory} subCategory={slot.itemSubCategory} />
-        ))}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-12">
+        {/* ── Main Content ── */}
+        <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            {primarySlots.map((slot) => (
+              <OutfitSlot key={slot.id} slotType={slot.slotType} imageUrl={slot.itemImageUrl} category={slot.itemCategory} subCategory={slot.itemSubCategory} />
+            ))}
+          </div>
+
+          {secondarySlots.length > 0 && (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-16">
+              {secondarySlots.map((slot) => (
+                <OutfitSlot key={slot.id} slotType={slot.slotType} imageUrl={slot.itemImageUrl} category={slot.itemCategory} subCategory={slot.itemSubCategory} />
+              ))}
+            </div>
+          )}
+
+          <section className="py-12 border-t border-outline-variant/10">
+            <h2 className="font-serif text-headline-sm text-on-surface mb-4 italic">Style Notes</h2>
+            <p className="text-body-lg text-on-surface-variant max-w-2xl">{outfit.feedback ?? "Rate this outfit and add your thoughts to help the AI learn your preferences."}</p>
+          </section>
+
+          {/* Complete the Look */}
+          <section className="py-12 border-t border-outline-variant/10">
+            <h2 className="font-serif text-headline-sm text-on-surface mb-6">
+              Complete the Look
+            </h2>
+            <p className="text-body-lg text-on-surface-variant mb-6">
+              Shop similar pieces from our curated catalog to recreate this outfit.
+            </p>
+            <div className="flex gap-3">
+              <Button onClick={() => window.location.href = "/catalog"}>
+                BROWSE CATALOG
+              </Button>
+            </div>
+          </section>
+        </div>
+
+        {/* ── Sidebar ── */}
+        <aside className="space-y-8">
+          <div className="bg-surface-container-lowest p-6 shadow-ambient">
+            <p className="label-text text-on-surface-variant tracking-widest mb-6">COMPOSITION DETAILS</p>
+            <div className="space-y-4">
+              {sortedSlots.map((slot) => (
+                <div key={slot.id} className="flex items-center gap-4">
+                  <div className="w-14 h-14 flex-shrink-0 bg-surface-container-low relative overflow-hidden">
+                    {slot.itemImageUrl ? (
+                      <Image src={slot.itemImageUrl} alt={slot.itemSubCategory ?? slot.itemCategory ?? slot.slotType} fill className="object-cover" sizes="56px" />
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <span className="text-[9px] text-on-surface-variant uppercase">{slot.slotType}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-serif text-body-lg text-on-surface capitalize truncate">
+                      {slot.itemSubCategory ?? slot.itemCategory ?? slotLabels[slot.slotType]}
+                    </p>
+                    <span className="label-text text-on-surface-variant text-label-md tracking-widest">
+                      {slotLabels[slot.slotType]?.toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 pt-6 border-t border-outline-variant/10 flex items-center justify-between">
+              <span className="label-text text-on-surface-variant tracking-widest">TOTAL PIECES</span>
+              <span className="font-serif text-headline-sm text-on-surface">{sortedSlots.length}</span>
+            </div>
+          </div>
+
+          <Link href="/outfits" className="block">
+            <Button variant="tertiary" className="w-full">VIEW SIMILAR OUTFITS</Button>
+          </Link>
+        </aside>
       </div>
 
-      {secondarySlots.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-16">
-          {secondarySlots.map((slot) => (
-            <OutfitSlot key={slot.id} slotType={slot.slotType} imageUrl={slot.itemImageUrl} category={slot.itemCategory} subCategory={slot.itemSubCategory} />
-          ))}
-        </div>
+      {/* ── More from the Archive ── */}
+      {archiveOutfits.length > 0 && (
+        <section className="mt-16 pt-12 border-t border-outline-variant/10">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="font-serif text-headline-md text-on-surface">More from the Archive</h2>
+            <Link href="/outfits">
+              <Button variant="tertiary">View All</Button>
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {archiveOutfits.map((o) => (
+              <OutfitCard key={o.id} outfit={o} />
+            ))}
+          </div>
+        </section>
       )}
-
-      <section className="py-12 border-t border-outline-variant/10">
-        <h2 className="font-serif text-headline-sm text-on-surface mb-4 italic">Style Notes</h2>
-        <p className="text-body-lg text-on-surface-variant max-w-2xl">{outfit.feedback ?? "Rate this outfit and add your thoughts to help the AI learn your preferences."}</p>
-      </section>
-
-      {/* Shop Similar */}
-      <section className="py-12 border-t border-outline-variant/10">
-        <h2 className="font-serif text-headline-sm text-on-surface mb-6">
-          Complete the Look
-        </h2>
-        <p className="text-body-lg text-on-surface-variant mb-6">
-          Shop similar pieces from our curated catalog to recreate this outfit.
-        </p>
-        <div className="flex gap-3">
-          <Button onClick={() => window.location.href = "/catalog"}>
-            BROWSE CATALOG
-          </Button>
-        </div>
-      </section>
     </div>
   );
 }

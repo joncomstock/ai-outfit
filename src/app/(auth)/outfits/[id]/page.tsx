@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc, ne } from "drizzle-orm";
 import { db } from "@/db";
 import { outfitsTable, outfitSlotsTable } from "@/db/schema/outfits";
 import { closetItemsTable } from "@/db/schema/closet-items";
@@ -35,5 +35,27 @@ export default async function OutfitDetailPage({ params }: { params: Promise<{ i
     .leftJoin(closetItemsTable, eq(outfitSlotsTable.closetItemId, closetItemsTable.id))
     .where(eq(outfitSlotsTable.outfitId, id));
 
-  return <OutfitDetailClient outfit={outfit} slots={slots} />;
+  const recentOutfitsRaw = await db
+    .select()
+    .from(outfitsTable)
+    .where(and(eq(outfitsTable.userId, userId), ne(outfitsTable.id, id)))
+    .orderBy(desc(outfitsTable.createdAt))
+    .limit(4);
+
+  const archiveOutfits = await Promise.all(
+    recentOutfitsRaw.map(async (o) => {
+      const oSlots = await db
+        .select({
+          slotType: outfitSlotsTable.slotType,
+          itemImageUrl: closetItemsTable.imageUrl,
+          itemSubCategory: closetItemsTable.subCategory,
+        })
+        .from(outfitSlotsTable)
+        .leftJoin(closetItemsTable, eq(outfitSlotsTable.closetItemId, closetItemsTable.id))
+        .where(eq(outfitSlotsTable.outfitId, o.id));
+      return { ...o, slots: oSlots };
+    })
+  );
+
+  return <OutfitDetailClient outfit={outfit} slots={slots} archiveOutfits={archiveOutfits} />;
 }
