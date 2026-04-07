@@ -3,6 +3,7 @@ import { eq, desc, count } from "drizzle-orm";
 import { db } from "@/db";
 import { usersTable } from "@/db/schema/users";
 import { closetItemsTable } from "@/db/schema/closet-items";
+import { outfitsTable } from "@/db/schema/outfits";
 import { ensureUser } from "@/lib/auth/ensure-user";
 import { Button } from "@/components/ui/button";
 import { ClosetItemCard } from "@/components/closet/closet-item-card";
@@ -33,6 +34,14 @@ export default async function Dashboard() {
     .where(eq(closetItemsTable.userId, user.id));
 
   const itemCount = itemCountResult?.value ?? 0;
+
+  const [outfitCountResult] = await db
+    .select({ value: count() })
+    .from(outfitsTable)
+    .where(eq(outfitsTable.userId, user.id));
+
+  const outfitCount = outfitCountResult?.value ?? 0;
+
   const hasItems = recentItems.length > 0;
 
   return (
@@ -68,7 +77,7 @@ export default async function Dashboard() {
       <section className="grid grid-cols-3 gap-8 py-12 mb-16 border-t border-b border-outline-variant">
         {[
           { value: itemCount, label: "Items" },
-          { value: 0, label: "Outfits" },
+          { value: outfitCount, label: "Outfits" },
           { value: 0, label: "Looks" },
         ].map((stat) => (
           <div key={stat.label} className="text-center">
