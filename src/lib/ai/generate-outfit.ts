@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { eq, and } from "drizzle-orm";
 import { db } from "@/db";
 import { usersTable } from "@/db/schema/users";
+import { trendsTable } from "@/db/schema/trends";
 import { closetItemsTable } from "@/db/schema/closet-items";
 import { outfitsTable, outfitSlotsTable } from "@/db/schema/outfits";
 import { updateJobStatus } from "@/lib/jobs/job-store";
@@ -10,8 +11,9 @@ const anthropic = new Anthropic();
 
 export interface GenerateOptions {
   userId: string;
-  mode: "for_you" | "style_this";
+  mode: "for_you" | "style_this" | "trend_based";
   sourceItemId?: string;
+  trendId?: string;
   jobId: string;
 }
 
@@ -51,7 +53,7 @@ Return ONLY valid JSON, no markdown fences, no explanation.`;
 export async function generateOutfit(
   options: GenerateOptions
 ): Promise<string | null> {
-  const { userId, mode, sourceItemId, jobId } = options;
+  const { userId, mode, sourceItemId, trendId, jobId } = options;
 
   try {
     updateJobStatus(jobId, "analyzing");
@@ -99,10 +101,24 @@ export async function generateOutfit(
         : "no preferences set";
     const budget = user?.budgetRange ?? "mid";
 
+    // Fetch trend context if trend_based mode
+    let trendContext = "";
+    if (mode === "trend_based" && trendId) {
+      const trend = await db.query.trends.findFirst({
+        where: eq(trendsTable.id, trendId),
+      });
+      if (trend) {
+        const trendTags = Array.isArray(trend.styleTags) ? trend.styleTags.join(", ") : "";
+        trendContext = `\n## Trend Inspiration: ${trend.name}\nDescription: ${trend.description}\nCategory: ${trend.category}\nStyle Tags: ${trendTags}\n\nBuild an outfit that embodies this trend aesthetic using the user's wardrobe items.`;
+      }
+    }
+
     const taskLine =
       mode === "style_this" && sourceItemId
         ? `Build a complete outfit around item ${sourceItemId}`
-        : "Create the best possible outfit from these items.";
+        : mode === "trend_based"
+          ? `Create an outfit inspired by the trend described below.${trendContext}`
+          : "Create the best possible outfit from these items.";
 
     const userMessage = `## Wardrobe Items
 
@@ -158,7 +174,7 @@ ${itemLines}
       .values({
         userId,
         name: result.name,
-        generationMode: mode === "style_this" ? "style_this" : "for_you",
+        generationMode: mode,
         sourceItemId: sourceItemId ?? null,
         aiRawResponse: result,
       })

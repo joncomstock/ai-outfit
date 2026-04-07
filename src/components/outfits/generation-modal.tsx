@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
@@ -14,11 +14,23 @@ interface GenerationModalProps {
 }
 
 export function GenerationModal({ isOpen, onClose, closetItems = [] }: GenerationModalProps) {
-  const [mode, setMode] = useState<"for_you" | "style_this">("for_you");
+  const searchParams = useSearchParams();
+  const initialMode = searchParams.get("mode") === "trend_based" ? "trend_based" as const : "for_you" as const;
+  const urlTrendId = searchParams.get("trendId");
+
+  const [mode, setMode] = useState<"for_you" | "style_this" | "trend_based">(initialMode);
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
+  const [trendId, setTrendId] = useState<string | null>(urlTrendId);
   const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+
+  useEffect(() => {
+    if (urlTrendId) {
+      setMode("trend_based");
+      setTrendId(urlTrendId);
+    }
+  }, [urlTrendId]);
 
   const handleGenerate = useCallback(async () => {
     setIsGenerating(true);
@@ -26,7 +38,11 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
       const res = await fetch("/api/outfits/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, sourceItemId: mode === "style_this" ? selectedItem : undefined }),
+        body: JSON.stringify({
+          mode,
+          sourceItemId: mode === "style_this" ? selectedItem : undefined,
+          trendId: mode === "trend_based" ? trendId : undefined,
+        }),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -55,7 +71,7 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
     } finally {
       setIsGenerating(false);
     }
-  }, [mode, selectedItem, toast, onClose, router]);
+  }, [mode, selectedItem, trendId, toast, onClose, router]);
 
   const readyItems = closetItems.filter((i) => i.status === "ready");
   const canGenerate = readyItems.length >= 3;
@@ -74,6 +90,10 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
               <p className="font-serif text-title-md text-on-surface mb-1">Style This Item</p>
               <p className="text-body-md text-on-surface-variant">Build an outfit around a specific piece.</p>
             </button>
+            <button onClick={() => setMode("trend_based")} className={`flex-1 p-6 text-left transition-colors ${mode === "trend_based" ? "bg-primary-fixed/30 ghost-border" : "bg-surface-container-low hover:bg-surface-container"}`}>
+              <p className="font-serif text-title-md text-on-surface mb-1">Trend Based</p>
+              <p className="text-body-md text-on-surface-variant">Generate an outfit inspired by a trending style.</p>
+            </button>
           </div>
         </div>
 
@@ -90,13 +110,37 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
           </div>
         )}
 
+        {mode === "trend_based" && trendId && (
+          <div className="bg-primary-fixed/10 p-4 ghost-border">
+            <p className="text-body-md text-on-surface">
+              Generating an outfit inspired by a selected trend. Your closet items will be matched to the trend aesthetic.
+            </p>
+          </div>
+        )}
+
+        {mode === "trend_based" && !trendId && (
+          <div>
+            <p className="text-body-md text-on-surface-variant">
+              Visit the <a href="/trends" className="text-primary underline">Trends page</a> to select a trend, then click &quot;Generate Outfit from Trend&quot;.
+            </p>
+          </div>
+        )}
+
         {!canGenerate && (
           <p className="text-body-md text-error">You need at least 3 analyzed items (top, bottom, shoes) to generate an outfit.</p>
         )}
 
         <div className="flex justify-end gap-3 pt-4 border-t border-outline-variant/10">
           <Button variant="secondary" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleGenerate} disabled={isGenerating || !canGenerate || (mode === "style_this" && !selectedItem)}>
+          <Button
+            onClick={handleGenerate}
+            disabled={
+              isGenerating ||
+              !canGenerate ||
+              (mode === "style_this" && !selectedItem) ||
+              (mode === "trend_based" && !trendId)
+            }
+          >
             {isGenerating ? "Generating..." : "Generate Outfit"}
           </Button>
         </div>
