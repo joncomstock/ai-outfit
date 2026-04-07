@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { TrendCard } from "@/components/trends/trend-card";
+import { Button } from "@/components/ui/button";
 import type { Trend } from "@/db/schema/trends";
 
 const CATEGORY_TABS = [
@@ -114,29 +115,56 @@ export function TrendsClient({ trends: initialTrends }: TrendsClientProps) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {trends.map((trend, index) => {
-              const isFeatured = index % 4 === 0;
-              return (
-                <TrendCard
-                  key={trend.id}
-                  trend={trend}
-                  featured={isFeatured}
-                />
-              );
-            })}
+          <div className="space-y-6">
+            {(() => {
+              const rows: React.ReactNode[] = [];
+              let i = 0;
+              while (i < trends.length) {
+                // Featured full-width card
+                rows.push(
+                  <div key={`featured-${i}`} className="grid grid-cols-1">
+                    <TrendCard trend={trends[i]} featured />
+                  </div>
+                );
+                i++;
+                // Next 2 side-by-side
+                if (i < trends.length) {
+                  const pair = trends.slice(i, i + 2);
+                  rows.push(
+                    <div key={`pair-${i}`} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {pair.map((t) => (
+                        <TrendCard key={t.id} trend={t} />
+                      ))}
+                    </div>
+                  );
+                  i += pair.length;
+                }
+              }
+              return rows;
+            })()}
           </div>
         )}
       </section>
 
-      {/* Bottom CTA */}
-      <section className="py-16 border-t border-outline-variant/10 text-center mb-16">
-        <p className="text-body-lg text-on-surface-variant italic mb-4">
-          The algorithm continues to analyze...
-        </p>
-        <h2 className="font-serif text-headline-md text-on-surface">
-          More sentiments emerging soon
-        </h2>
+      {/* Newsletter CTA */}
+      <section className="mt-16 py-16 bg-surface-container-low">
+        <div className="max-w-xl mx-auto text-center">
+          <p className="label-text text-on-surface-variant mb-4">STAY CURRENT</p>
+          <h3 className="font-serif text-headline-md text-on-surface mb-3 italic">
+            The algorithm&apos;s next move is analysis...
+          </h3>
+          <p className="text-body-lg text-on-surface-variant mb-8">
+            Subscribe to receive trend alerts and styling insights.
+          </p>
+          <div className="flex gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="your@email.com"
+              className="flex-1 bg-surface border border-outline-variant/30 px-4 py-3 text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary"
+            />
+            <Button>SUBSCRIBE</Button>
+          </div>
+        </div>
       </section>
     </div>
   );
