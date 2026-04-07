@@ -26,6 +26,7 @@ export default async function ProfilePage() {
         stylePreferences: user.stylePreferences ?? [],
         sizes: user.sizes ?? {},
         budgetRange: user.budgetRange ?? "mid",
+        createdAt: user.createdAt.toISOString(),
       }}
     />
   );
