@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { OutfitSlot } from "@/components/outfits/outfit-slot";
 import { OutfitRating } from "@/components/outfits/outfit-rating";
+import { ShareButton } from "@/components/sharing/share-button";
 import { useToast } from "@/components/ui/toast";
 import type { Outfit } from "@/db/schema/outfits";
 
@@ -49,6 +50,7 @@ export function OutfitDetailClient({ outfit, slots }: OutfitDetailClientProps) {
         <div className="flex items-start justify-between">
           <h1 className="font-serif text-display-sm text-on-surface">{outfit.name || "Untitled Outfit"}</h1>
           <div className="flex items-center gap-4">
+            <ShareButton outfitId={outfit.id} shareToken={outfit.shareToken} />
             <OutfitRating outfitId={outfit.id} initialRating={outfit.rating} />
             <Button variant="tertiary" onClick={handleDelete}>Delete</Button>
           </div>
