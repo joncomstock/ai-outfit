@@ -74,10 +74,20 @@ export async function generateOutfit(
         )
       );
 
-    // Validate minimum item count
-    if (closetItems.length < 3) {
+    // Validate required wardrobe categories
+    const categories = new Set(closetItems.map((item) => item.category));
+    const hasTop = categories.has("tops");
+    const hasBottom = categories.has("bottoms");
+    const hasShoes = categories.has("shoes");
+
+    if (!hasTop || !hasBottom || !hasShoes) {
+      const missing = [
+        !hasTop && "tops",
+        !hasBottom && "bottoms",
+        !hasShoes && "shoes",
+      ].filter(Boolean);
       throw new Error(
-        `Not enough wardrobe items to generate an outfit. Need at least 3 (top, bottom, shoes), found ${closetItems.length}.`
+        `Missing required wardrobe categories: ${missing.join(", ")}. Upload at least one item in each category.`
       );
     }
 
