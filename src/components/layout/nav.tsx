@@ -12,6 +12,7 @@ const navItems = [
   { href: "/trends", label: "Trends" },
   { href: "/catalog", label: "Catalog" },
   { href: "/capsules", label: "Capsules" },
+  { href: "/feed", label: "Feed" },
 ];
 
 export function Nav() {
