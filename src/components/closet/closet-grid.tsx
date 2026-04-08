@@ -79,43 +79,7 @@ export function ClosetGrid({ items, onItemClick }: ClosetGridProps) {
           formatLabel={(v) => `SORT BY: ${v.toUpperCase()}`}
         />
 
-        <div className="ml-auto flex items-center gap-1">
-          <button
-            className="p-2 text-on-surface-variant hover:text-on-surface transition-colors"
-            aria-label="Grid view"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            >
-              <rect x="1" y="1" width="5.5" height="5.5" />
-              <rect x="9.5" y="1" width="5.5" height="5.5" />
-              <rect x="1" y="9.5" width="5.5" height="5.5" />
-              <rect x="9.5" y="9.5" width="5.5" height="5.5" />
-            </svg>
-          </button>
-          <button
-            className="p-2 text-on-surface-variant hover:text-on-surface transition-colors"
-            aria-label="List view"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            >
-              <line x1="1" y1="3" x2="15" y2="3" />
-              <line x1="1" y1="8" x2="15" y2="8" />
-              <line x1="1" y1="13" x2="15" y2="13" />
-            </svg>
-          </button>
-        </div>
+        <div className="ml-auto" />
       </div>
 
       {/* Grid */}

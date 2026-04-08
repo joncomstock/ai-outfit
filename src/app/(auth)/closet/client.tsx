@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ClosetGrid } from "@/components/closet/closet-grid";
 import { ClosetStats } from "@/components/closet/closet-stats";
 import { UploadModal } from "@/components/closet/upload-modal";
+import { EditItemModal } from "@/components/closet/edit-item-modal";
 import type { ClosetItem } from "@/db/schema/closet-items";
 
 interface ClosetPageClientProps {
@@ -15,6 +16,7 @@ interface ClosetPageClientProps {
 
 export function ClosetPageClient({ initialItems }: ClosetPageClientProps) {
   const [showUpload, setShowUpload] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ClosetItem | null>(null);
   const router = useRouter();
 
   const handleUploadComplete = useCallback(
@@ -23,6 +25,11 @@ export function ClosetPageClient({ initialItems }: ClosetPageClientProps) {
     },
     [router]
   );
+
+  const handleItemSaved = useCallback(() => {
+    setSelectedItem(null);
+    router.refresh();
+  }, [router]);
 
   return (
     <div>
@@ -73,7 +80,7 @@ export function ClosetPageClient({ initialItems }: ClosetPageClientProps) {
             <ClosetStats />
           </div>
           <div className="flex-1 min-w-0">
-            <ClosetGrid items={initialItems} />
+            <ClosetGrid items={initialItems} onItemClick={setSelectedItem} />
           </div>
         </div>
       )}
@@ -83,6 +90,15 @@ export function ClosetPageClient({ initialItems }: ClosetPageClientProps) {
         onClose={() => setShowUpload(false)}
         onUploadComplete={handleUploadComplete}
       />
+
+      {selectedItem && (
+        <EditItemModal
+          item={selectedItem}
+          isOpen={!!selectedItem}
+          onClose={() => setSelectedItem(null)}
+          onSave={handleItemSaved}
+        />
+      )}
     </div>
   );
 }
