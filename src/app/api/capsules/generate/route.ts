@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { season, theme } = body as { season?: string; theme?: string };
 
-  const jobId = await createJob("capsule-generation");
+  const jobId = await createJob();
 
   // Run generation asynchronously
   (async () => {
