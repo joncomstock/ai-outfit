@@ -6,6 +6,33 @@ import { productsTable } from "@/db/schema/products";
 import { affiliateClicksTable } from "@/db/schema/affiliate";
 import { ensureUser } from "@/lib/auth/ensure-user";
 
+export async function GET(req: NextRequest) {
+  const { searchParams } = req.nextUrl;
+  const productId = searchParams.get("productId");
+  const source = searchParams.get("source");
+
+  if (!productId) {
+    return NextResponse.json({ error: "productId is required" }, { status: 400 });
+  }
+
+  const product = await db.query.products.findFirst({
+    where: eq(productsTable.id, productId),
+  });
+
+  if (!product) {
+    return NextResponse.json({ error: "Product not found" }, { status: 404 });
+  }
+
+  await db.insert(affiliateClicksTable).values({
+    userId: null,
+    productId,
+    sourceContext: source ?? null,
+    affiliateUrl: product.affiliateUrl,
+  });
+
+  return NextResponse.redirect(product.affiliateUrl, 302);
+}
+
 export async function POST(req: NextRequest) {
   const { userId: clerkId } = await auth();
   if (!clerkId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
