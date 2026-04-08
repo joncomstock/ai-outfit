@@ -13,6 +13,10 @@ vi.mock("@/lib/jobs/job-store", () => ({
 vi.mock("@/lib/ai/generate-outfit", () => ({
   generateOutfit: vi.fn().mockResolvedValue("outfit-uuid-1"),
 }));
+vi.mock("@/lib/billing/gates", () => ({
+  canGenerate: vi.fn().mockResolvedValue(true),
+  recordUsage: vi.fn().mockResolvedValue(undefined),
+}));
 
 describe("POST /api/outfits/generate", () => {
   it("triggers generation and returns job ID", async () => {
