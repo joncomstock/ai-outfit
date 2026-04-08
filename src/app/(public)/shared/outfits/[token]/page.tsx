@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { db } from "@/db";
 import { outfitsTable, outfitSlotsTable } from "@/db/schema/outfits";
 import { closetItemsTable } from "@/db/schema/closet-items";
@@ -55,10 +55,20 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
     .where(eq(outfitSlotsTable.outfitId, outfit.id));
 
   // Fetch suggested products for "Shop Now" affiliate links
-  const suggestedProducts = await db
-    .select()
-    .from(productsTable)
-    .limit(4);
+  // Match products to the outfit's categories for relevant suggestions
+  type ProductCategory = "tops" | "bottoms" | "outerwear" | "shoes" | "bags" | "accessories";
+  const validCategories: ProductCategory[] = ["tops", "bottoms", "outerwear", "shoes", "bags", "accessories"];
+  const outfitCategories = slots
+    .map((s) => s.itemCategory)
+    .filter((c): c is ProductCategory => c !== null && validCategories.includes(c as ProductCategory));
+
+  const suggestedProducts = outfitCategories.length > 0
+    ? await db
+        .select()
+        .from(productsTable)
+        .where(inArray(productsTable.category, outfitCategories))
+        .limit(4)
+    : await db.select().from(productsTable).limit(4);
 
   const slotOrder = ["top", "bottom", "shoes", "outerwear", "accessory"];
   const sortedSlots = [...slots].sort((a, b) => slotOrder.indexOf(a.slotType) - slotOrder.indexOf(b.slotType));

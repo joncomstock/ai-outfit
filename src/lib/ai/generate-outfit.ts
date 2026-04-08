@@ -6,6 +6,7 @@ import { trendsTable } from "@/db/schema/trends";
 import { closetItemsTable } from "@/db/schema/closet-items";
 import { outfitsTable, outfitSlotsTable } from "@/db/schema/outfits";
 import { updateJobStatus } from "@/lib/jobs/job-store";
+import { validateOutfitResult } from "./validate-response";
 
 const anthropic = new Anthropic();
 
@@ -154,7 +155,12 @@ ${itemLines}
 
     const text =
       response.content[0].type === "text" ? response.content[0].text : "";
-    const result: ClaudeOutfitResult = JSON.parse(text);
+    const parsed = JSON.parse(text);
+    const validation = validateOutfitResult(parsed);
+    if (!validation.valid) {
+      throw new Error(`AI response validation failed: ${validation.error}`);
+    }
+    const result: ClaudeOutfitResult = parsed;
 
     // Validate all referenced IDs belong to the user's items
     const userItemIds = new Set(closetItems.map((item) => item.id));

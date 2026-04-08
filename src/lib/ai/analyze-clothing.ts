@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { closetItemsTable } from "@/db/schema/closet-items";
 import { usersTable } from "@/db/schema/users";
 import { updateJobStatus } from "@/lib/jobs/job-store";
+import { validateClothingAnalysis } from "./validate-response";
 
 const anthropic = new Anthropic();
 
@@ -60,7 +61,12 @@ export async function analyzeClothingImage(
 
     const text =
       response.content[0].type === "text" ? response.content[0].text : "";
-    const result: AnalysisResult = JSON.parse(text);
+    const parsed = JSON.parse(text);
+    const validation = validateClothingAnalysis(parsed);
+    if (!validation.valid) {
+      throw new Error(`AI response validation failed: ${validation.error}`);
+    }
+    const result: AnalysisResult = parsed;
 
     await updateJobStatus(jobId, "detecting_colors");
 
