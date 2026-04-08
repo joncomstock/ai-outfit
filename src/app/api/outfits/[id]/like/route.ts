@@ -3,7 +3,25 @@ import { auth } from "@clerk/nextjs/server";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { likesTable } from "@/db/schema/likes";
+import { outfitsTable } from "@/db/schema/outfits";
 import { ensureUser } from "@/lib/auth/ensure-user";
+
+async function verifyOutfitAccess(outfitId: string, dbUserId: string) {
+  const outfit = await db.query.outfits.findFirst({
+    where: eq(outfitsTable.id, outfitId),
+  });
+
+  if (!outfit) {
+    return { allowed: false as const, response: NextResponse.json({ error: "Outfit not found" }, { status: 404 }) };
+  }
+
+  // Only allow likes on shared (public) outfits or the user's own outfits
+  if (!outfit.shareToken && outfit.userId !== dbUserId) {
+    return { allowed: false as const, response: NextResponse.json({ error: "Outfit not found" }, { status: 404 }) };
+  }
+
+  return { allowed: true as const };
+}
 
 export async function POST(
   _req: NextRequest,
@@ -16,6 +34,9 @@ export async function POST(
   if (!dbUserId) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
   const { id: outfitId } = await params;
+
+  const access = await verifyOutfitAccess(outfitId, dbUserId);
+  if (!access.allowed) return access.response;
 
   await db
     .insert(likesTable)
@@ -43,6 +64,9 @@ export async function DELETE(
   if (!dbUserId) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
   const { id: outfitId } = await params;
+
+  const access = await verifyOutfitAccess(outfitId, dbUserId);
+  if (!access.allowed) return access.response;
 
   await db
     .delete(likesTable)
