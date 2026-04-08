@@ -139,7 +139,7 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
                 <div key={slot.id} className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 items-start">
                   <div className="aspect-[3/4] relative overflow-hidden bg-surface-container-low">
                     {slot.itemImageUrl ? (
-                      <img src={slot.itemImageUrl} alt={slot.itemSubCategory ?? slot.itemCategory ?? slot.slotType} className="object-cover w-full h-full" />
+                      <img src={slot.itemImageUrl} alt={slot.itemSubCategory ?? slot.itemCategory ?? slot.slotType} loading="lazy" className="object-cover w-full h-full" />
                     ) : (
                       <div className="flex items-center justify-center h-full">
                         <span className="label-text text-on-surface-variant">{slot.slotType}</span>

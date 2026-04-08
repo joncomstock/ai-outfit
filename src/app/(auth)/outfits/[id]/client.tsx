@@ -183,7 +183,7 @@ export function OutfitDetailClient({ outfit, slots, archiveOutfits = [] }: Outfi
                 <Link key={o.id} href={`/outfits/${o.id}`} className="group block relative">
                   <div className="aspect-[3/4] relative overflow-hidden bg-surface-container-low">
                     {previewImage ? (
-                      <img src={previewImage} alt={o.name} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-[1.03]" />
+                      <img src={previewImage} alt={o.name} loading="lazy" className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-[1.03]" />
                     ) : (
                       <div className="flex items-center justify-center h-full bg-surface-container-low" />
                     )}

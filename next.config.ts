@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
   },
+  experimental: {
+    optimizePackageImports: ["@clerk/nextjs", "drizzle-orm"],
+  },
 };
 
 export default nextConfig;

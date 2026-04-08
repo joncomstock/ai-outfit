@@ -203,7 +203,7 @@ export default async function Dashboard() {
                 <Link key={trend.id} href={`/trends/${trend.id}`} className="flex-shrink-0 w-44 md:w-56 group">
                   <div className="aspect-[3/4] bg-surface-container-low mb-3 relative overflow-hidden">
                     {trend.heroImageUrl && (
-                      <img src={trend.heroImageUrl} alt={trend.name} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-[1.03]" />
+                      <img src={trend.heroImageUrl} alt={trend.name} loading="lazy" className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-[1.03]" />
                     )}
                   </div>
                   <div className="flex items-center gap-2">

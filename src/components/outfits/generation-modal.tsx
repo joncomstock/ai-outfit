@@ -103,7 +103,7 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-60 overflow-y-auto">
               {readyItems.map((item) => (
                 <button key={item.id} onClick={() => setSelectedItem(item.id)} className={`aspect-[3/4] relative overflow-hidden ${selectedItem === item.id ? "ring-2 ring-primary" : "opacity-70 hover:opacity-100"}`}>
-                  <img src={item.imageUrl} alt={item.subCategory ?? "item"} className="w-full h-full object-cover" />
+                  <img src={item.imageUrl} alt={item.subCategory ?? "item"} loading="lazy" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
