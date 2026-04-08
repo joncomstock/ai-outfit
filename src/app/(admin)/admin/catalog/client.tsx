@@ -5,16 +5,41 @@ import { Badge } from "@/components/ui/badge";
 import { CsvUpload } from "@/components/admin/csv-upload";
 import type { Product } from "@/db/schema/products";
 
+interface SyncResult {
+  synced: number;
+  errors: number;
+}
+
 interface AdminCatalogClientProps {
   initialProducts: Product[];
 }
 
 export function AdminCatalogClient({ initialProducts }: AdminCatalogClientProps) {
   const [products] = useState(initialProducts);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null);
 
   const handleImportComplete = () => {
     window.location.reload();
   };
+
+  async function handleSync() {
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const res = await fetch("/api/admin/catalog/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categories: ["tops", "bottoms", "outerwear", "shoes", "bags", "accessories"] }),
+      });
+      const data = await res.json();
+      setSyncResult({ synced: data.totalSynced ?? data.synced ?? 0, errors: data.totalErrors ?? data.errors ?? 0 });
+    } catch {
+      setSyncResult({ synced: 0, errors: 1 });
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   const formattedPrice = (p: Product) =>
     new Intl.NumberFormat("en-US", {
@@ -34,8 +59,22 @@ export function AdminCatalogClient({ initialProducts }: AdminCatalogClientProps)
         </h1>
       </div>
 
-      <div className="mb-10">
+      <div className="mb-10 flex items-center gap-4 flex-wrap">
         <CsvUpload onImportComplete={handleImportComplete} />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            className="editorial-gradient px-4 py-2 text-white text-label-lg uppercase tracking-widest disabled:opacity-50"
+          >
+            {syncing ? "Syncing..." : "Sync Products"}
+          </button>
+          {syncResult && (
+            <p className="text-body-md text-on-surface-variant">
+              Synced {syncResult.synced} products{syncResult.errors > 0 ? `, ${syncResult.errors} errors` : ""}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Product Table */}
