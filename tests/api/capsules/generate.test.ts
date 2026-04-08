@@ -12,6 +12,9 @@ vi.mock("@/lib/jobs/job-store", () => ({
   createJob: vi.fn().mockReturnValue("job-123"),
   updateJobStatus: vi.fn(),
 }));
+vi.mock("@/lib/billing/gates", () => ({
+  isPremium: vi.fn().mockResolvedValue(true),
+}));
 vi.mock("@/lib/ai/generate-capsule", () => ({
   generateCapsule: vi.fn().mockResolvedValue({
     name: "Test Capsule",

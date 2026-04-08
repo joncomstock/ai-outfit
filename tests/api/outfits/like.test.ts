@@ -10,6 +10,11 @@ vi.mock("@/lib/auth/ensure-user", () => ({
 }));
 vi.mock("@/db", () => ({
   db: {
+    query: {
+      outfits: {
+        findFirst: vi.fn().mockResolvedValue({ id: "outfit-1", userId: "other-user", shareToken: "abc123" }),
+      },
+    },
     insert: vi.fn().mockReturnValue({
       values: vi.fn().mockReturnValue({
         onConflictDoNothing: vi.fn().mockReturnValue({
@@ -29,6 +34,9 @@ vi.mock("@/db", () => ({
 }));
 vi.mock("@/db/schema/likes", () => ({
   likesTable: { userId: "user_id", outfitId: "outfit_id" },
+}));
+vi.mock("@/db/schema/outfits", () => ({
+  outfitsTable: { id: "id", shareToken: "share_token", userId: "user_id" },
 }));
 
 describe("POST /api/outfits/[id]/like", () => {
