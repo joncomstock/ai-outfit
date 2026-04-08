@@ -19,16 +19,18 @@ export default async function FitProfilePage() {
   return (
     <FitProfileClient
       profile={
-        profile ?? {
-          heightCm: null,
-          weightKg: null,
-          chestCm: null,
-          waistCm: null,
-          hipsCm: null,
-          shouldersCm: null,
-          inseamCm: null,
-          brandFitNotes: {},
-        }
+        profile
+          ? { ...profile, brandFitNotes: profile.brandFitNotes ?? {} }
+          : {
+              heightCm: null,
+              weightKg: null,
+              chestCm: null,
+              waistCm: null,
+              hipsCm: null,
+              shouldersCm: null,
+              inseamCm: null,
+              brandFitNotes: {},
+            }
       }
     />
   );

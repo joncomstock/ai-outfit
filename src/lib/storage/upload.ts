@@ -23,6 +23,7 @@ export async function uploadClothingImagePrivate(
 ): Promise<string> {
   const filename = `closet/${userId}/${Date.now()}-${file.name}`;
   const blob = await put(filename, file, {
+    access: "public",
     contentType: file.type,
     addRandomSuffix: true,
   });

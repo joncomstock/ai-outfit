@@ -12,7 +12,7 @@ interface TrendFormProps {
     heroImageUrl?: string;
     category?: string;
     momentumScore?: number;
-    season?: string;
+    season?: string | null;
     status?: string;
   };
   onSubmit: (data: Record<string, unknown>) => Promise<void>;
