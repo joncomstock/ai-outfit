@@ -8,3 +8,5 @@ process.env.BLOB_READ_WRITE_TOKEN = "vercel_blob_test_token";
 process.env.ANTHROPIC_API_KEY = "sk-ant-test-placeholder";
 process.env.RESEND_API_KEY = "re_test_placeholder";
 process.env.EMAIL_FROM = "noreply@outfitengine.com";
+process.env.NEXT_PUBLIC_POSTHOG_KEY = "";
+process.env.NEXT_PUBLIC_POSTHOG_HOST = "";

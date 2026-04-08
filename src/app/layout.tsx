@@ -3,6 +3,7 @@ import { Noto_Serif, Manrope } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { PostHogProvider } from "@/components/analytics/posthog-provider";
 import "./globals.css";
 
 const notoSerif = Noto_Serif({
@@ -47,7 +48,9 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className={`${notoSerif.variable} ${manrope.variable}`}>
         <body>
-          {children}
+          <PostHogProvider>
+            {children}
+          </PostHogProvider>
           <Analytics />
           <SpeedInsights />
         </body>
