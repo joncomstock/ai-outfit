@@ -34,6 +34,8 @@ export const usersTable = pgTable("users", {
   onboardingState: onboardingStateEnum("onboarding_state")
     .notNull()
     .default("signup"),
+  subscriptionStatus: text("subscription_status").notNull().default("free"),
+  stripeCustomerId: text("stripe_customer_id"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at")
     .notNull()
