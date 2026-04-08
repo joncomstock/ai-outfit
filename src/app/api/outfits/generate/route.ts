@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "trendId required for trend_based mode" }, { status: 400 });
   }
 
-  const jobId = createJob("outfit-generation");
+  const jobId = await createJob("outfit-generation");
   generateOutfit({ userId: dbUserId, mode, sourceItemId, trendId, jobId })
     .then(() => recordUsage(dbUserId, "outfit_generation"))
     .catch(console.error);

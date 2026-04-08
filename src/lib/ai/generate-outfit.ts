@@ -56,7 +56,7 @@ export async function generateOutfit(
   const { userId, mode, sourceItemId, trendId, jobId } = options;
 
   try {
-    updateJobStatus(jobId, "analyzing");
+    await updateJobStatus(jobId, "analyzing");
 
     // Fetch user preferences
     const user = await db.query.users.findFirst({
@@ -200,11 +200,11 @@ ${itemLines}
         .where(eq(usersTable.id, userId));
     }
 
-    updateJobStatus(jobId, "ready");
+    await updateJobStatus(jobId, "ready");
     return outfitId;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
-    updateJobStatus(jobId, "error", message);
+    await updateJobStatus(jobId, "error", message);
     return null;
   }
 }

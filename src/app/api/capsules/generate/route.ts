@@ -17,12 +17,12 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { season, theme } = body as { season?: string; theme?: string };
 
-  const jobId = createJob("capsule-generation");
+  const jobId = await createJob("capsule-generation");
 
   // Run generation asynchronously
   (async () => {
     try {
-      updateJobStatus(jobId, "analyzing");
+      await updateJobStatus(jobId, "analyzing");
 
       const result = await generateCapsule({ userId: dbUserId, season, theme });
 
@@ -72,10 +72,10 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      updateJobStatus(jobId, "ready");
+      await updateJobStatus(jobId, "ready");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Capsule generation failed";
-      updateJobStatus(jobId, "error", message);
+      await updateJobStatus(jobId, "error", message);
     }
   })().catch(console.error);
 

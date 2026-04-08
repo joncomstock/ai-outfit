@@ -13,6 +13,7 @@ import { followsTable } from "./schema/follows";
 import { activitiesTable } from "./schema/activities";
 import { likesTable } from "./schema/likes";
 import { usageTrackingTable } from "./schema/usage";
+import { jobsTable } from "./schema/jobs";
 
 const sql = neon(process.env.DATABASE_URL!);
 
@@ -35,5 +36,6 @@ export const db = drizzle(sql, {
     activities: activitiesTable,
     likes: likesTable,
     usageTracking: usageTrackingTable,
+    jobs: jobsTable,
   },
 });

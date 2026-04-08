@@ -35,7 +35,7 @@ export async function analyzeClothingImage(
   jobId: string
 ): Promise<void> {
   try {
-    updateJobStatus(jobId, "analyzing");
+    await updateJobStatus(jobId, "analyzing");
 
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
@@ -62,7 +62,7 @@ export async function analyzeClothingImage(
       response.content[0].type === "text" ? response.content[0].text : "";
     const result: AnalysisResult = JSON.parse(text);
 
-    updateJobStatus(jobId, "detecting_colors");
+    await updateJobStatus(jobId, "detecting_colors");
 
     await db
       .update(closetItemsTable)
@@ -96,7 +96,7 @@ export async function analyzeClothingImage(
       }
     }
 
-    updateJobStatus(jobId, "ready");
+    await updateJobStatus(jobId, "ready");
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
 
@@ -106,6 +106,6 @@ export async function analyzeClothingImage(
       .where(eq(closetItemsTable.id, itemId))
       .catch(() => {});
 
-    updateJobStatus(jobId, "error", message);
+    await updateJobStatus(jobId, "error", message);
   }
 }

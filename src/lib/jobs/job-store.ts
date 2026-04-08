@@ -1,55 +1,70 @@
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { jobsTable } from "@/db/schema/jobs";
+
 export type JobStatus =
   | "queued"
   | "uploading"
   | "analyzing"
   | "detecting_colors"
   | "detecting_fit"
+  | "generating"
   | "ready"
   | "error";
 
-interface Job {
-  id: string;
-  itemId: string;
-  status: JobStatus;
-  error?: string;
-  listeners: Set<(status: JobStatus, error?: string) => void>;
+// In-memory listeners for SSE (per-instance only)
+const listeners = new Map<string, Set<(status: JobStatus, error?: string) => void>>();
+
+export async function createJob(itemId?: string): Promise<string> {
+  const [job] = await db
+    .insert(jobsTable)
+    .values({ itemId: itemId ?? null })
+    .returning();
+  return job.id;
 }
 
-const jobs = new Map<string, Job>();
-
-export function createJob(itemId: string): string {
-  const id = crypto.randomUUID();
-  jobs.set(id, { id, itemId, status: "queued", listeners: new Set() });
-  return id;
-}
-
-export function updateJobStatus(
+export async function updateJobStatus(
   jobId: string,
   status: JobStatus,
   error?: string
-) {
-  const job = jobs.get(jobId);
-  if (!job) return;
-  job.status = status;
-  if (error) job.error = error;
-  for (const listener of job.listeners) {
-    listener(status, error);
-  }
-  if (status === "ready" || status === "error") {
-    setTimeout(() => jobs.delete(jobId), 60_000);
+): Promise<void> {
+  await db
+    .update(jobsTable)
+    .set({ status, error: error ?? null })
+    .where(eq(jobsTable.id, jobId));
+
+  const jobListeners = listeners.get(jobId);
+  if (jobListeners) {
+    for (const listener of jobListeners) {
+      listener(status, error);
+    }
+    if (status === "ready" || status === "error") {
+      listeners.delete(jobId);
+    }
   }
 }
 
-export function getJob(jobId: string) {
-  return jobs.get(jobId) ?? null;
+export async function getJob(jobId: string) {
+  return (
+    (await db.query.jobs.findFirst({
+      where: eq(jobsTable.id, jobId),
+    })) ?? null
+  );
 }
 
 export function subscribeToJob(
   jobId: string,
   listener: (status: JobStatus, error?: string) => void
 ): () => void {
-  const job = jobs.get(jobId);
-  if (!job) return () => {};
-  job.listeners.add(listener);
-  return () => job.listeners.delete(listener);
+  if (!listeners.has(jobId)) {
+    listeners.set(jobId, new Set());
+  }
+  listeners.get(jobId)!.add(listener);
+  return () => {
+    const set = listeners.get(jobId);
+    if (set) {
+      set.delete(listener);
+      if (set.size === 0) listeners.delete(jobId);
+    }
+  };
 }

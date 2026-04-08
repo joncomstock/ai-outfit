@@ -6,11 +6,14 @@ vi.mock("@clerk/nextjs/server", () => ({
 }));
 
 vi.mock("@/lib/jobs/job-store", () => ({
-  getJob: vi.fn().mockReturnValue({
+  getJob: vi.fn().mockResolvedValue({
     id: "job-123",
     itemId: "item-456",
     status: "analyzing",
-    listeners: new Set(),
+    error: null,
+    outfitId: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   }),
   subscribeToJob: vi.fn().mockReturnValue(() => {}),
 }));
@@ -30,7 +33,7 @@ describe("GET /api/jobs/[id]/status", () => {
 
   it("returns 404 for unknown job", async () => {
     const { getJob } = await import("@/lib/jobs/job-store");
-    vi.mocked(getJob).mockReturnValueOnce(null);
+    vi.mocked(getJob).mockResolvedValueOnce(null);
 
     const req = new NextRequest(
       "http://localhost/api/jobs/unknown/status"

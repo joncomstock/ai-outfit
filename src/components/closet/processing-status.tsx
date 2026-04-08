@@ -10,6 +10,7 @@ const statusMessages: Record<JobStatus, string> = {
   analyzing: "Our AI stylist is examining your piece...",
   detecting_colors: "Identifying colors and patterns...",
   detecting_fit: "Assessing fit and silhouette...",
+  generating: "Generating your outfit...",
   ready: "Analysis complete!",
   error: "Something went wrong",
 };

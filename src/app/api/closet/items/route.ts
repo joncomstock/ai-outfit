@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     })
     .returning();
 
-  const jobId = createJob(item.id);
+  const jobId = await createJob(item.id);
 
   // Update onboarding state if this is the first upload
   const user = await db.query.users.findFirst({
