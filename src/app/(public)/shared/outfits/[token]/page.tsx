@@ -3,7 +3,6 @@ import { db } from "@/db";
 import { outfitsTable, outfitSlotsTable } from "@/db/schema/outfits";
 import { closetItemsTable } from "@/db/schema/closet-items";
 import { productsTable } from "@/db/schema/products";
-import { OutfitSlot } from "@/components/outfits/outfit-slot";
 import { Button } from "@/components/ui/button";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -63,9 +62,6 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
 
   const slotOrder = ["top", "bottom", "shoes", "outerwear", "accessory"];
   const sortedSlots = [...slots].sort((a, b) => slotOrder.indexOf(a.slotType) - slotOrder.indexOf(b.slotType));
-  const primarySlots = sortedSlots.filter((s) => s.slotType === "top" || s.slotType === "bottom");
-  const secondarySlots = sortedSlots.filter((s) => s.slotType === "shoes" || s.slotType === "outerwear" || s.slotType === "accessory");
-
   const createdDate = new Date(outfit.createdAt).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -97,9 +93,18 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
               <span className="label-text text-white/80 tracking-widest mb-2 block">
                 CURATED OUTFIT — {createdDate.toUpperCase()}
               </span>
-              <h1 className="font-serif text-display-sm text-white">
+              <h1 className="font-serif text-display-sm text-white mb-3">
                 {outfit.name || "Untitled Outfit"}
               </h1>
+              <p className="font-serif text-title-lg text-white/90 mb-4">
+                {(() => {
+                  const total = suggestedProducts.reduce((sum, p) => sum + (p.price ?? 0), 0);
+                  return total > 0 ? `Estimated Total: $${(total / 100).toFixed(0)}` : "Priceless";
+                })()}
+              </p>
+              <Link href="#outfit-architecture">
+                <Button>GET THIS LOOK</Button>
+              </Link>
             </div>
           </div>
         )}
@@ -122,38 +127,49 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
         </section>
 
         {/* Outfit Architecture */}
-        <section className="mb-16">
+        <section id="outfit-architecture" className="mb-16">
           <span className="label-text text-on-surface-variant tracking-widest mb-6 block">
             OUTFIT ARCHITECTURE
           </span>
 
-          {/* Primary slots (top + bottom) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            {primarySlots.map((slot) => (
-              <OutfitSlot
-                key={slot.id}
-                slotType={slot.slotType}
-                imageUrl={slot.itemImageUrl}
-                category={slot.itemCategory}
-                subCategory={slot.itemSubCategory}
-              />
-            ))}
+          <div className="space-y-10">
+            {sortedSlots.map((slot) => {
+              const isClosetItem = !!slot.closetItemId;
+              return (
+                <div key={slot.id} className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6 items-start">
+                  <div className="aspect-[3/4] relative overflow-hidden bg-surface-container-low">
+                    {slot.itemImageUrl ? (
+                      <img src={slot.itemImageUrl} alt={slot.itemSubCategory ?? slot.itemCategory ?? slot.slotType} className="object-cover w-full h-full" />
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <span className="label-text text-on-surface-variant">{slot.slotType}</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="py-2">
+                    <span className="label-text text-primary tracking-widest block mb-2">
+                      {isClosetItem ? "CLOSET ITEM" : "CATALOG PRODUCT"}
+                    </span>
+                    <span className="label-text text-on-surface-variant tracking-widest block mb-1">
+                      {(slot.itemCategory ?? slot.slotType).toUpperCase()}
+                    </span>
+                    <h3 className="font-serif text-headline-sm text-on-surface mb-2">
+                      {slot.itemSubCategory ?? slot.itemCategory ?? slot.slotType}
+                    </h3>
+                    {isClosetItem ? (
+                      <p className="text-body-lg text-on-surface-variant">
+                        Similar textures available in the catalog
+                      </p>
+                    ) : (
+                      <Link href="/catalog" className="label-text text-primary underline underline-offset-4 decoration-1 tracking-widest">
+                        SHOP NOW
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
-
-          {/* Secondary slots */}
-          {secondarySlots.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-6">
-              {secondarySlots.map((slot) => (
-                <OutfitSlot
-                  key={slot.id}
-                  slotType={slot.slotType}
-                  imageUrl={slot.itemImageUrl}
-                  category={slot.itemCategory}
-                  subCategory={slot.itemSubCategory}
-                />
-              ))}
-            </div>
-          )}
         </section>
 
         {/* Shop Now — affiliate links */}
@@ -199,10 +215,10 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
         {/* CTA */}
         <section className="py-16 text-center border-t border-outline-variant/10">
           <h2 className="font-serif text-headline-md text-on-surface mb-4">
-            Your Wardrobe, Intelligently Styled
+            Build Your Identity
           </h2>
           <p className="text-body-lg text-on-surface-variant max-w-lg mx-auto mb-8">
-            Outfit Engine uses AI to analyze your closet and create personalized outfits. Start your style journey today.
+            Digitize your closet. Master your style.
           </p>
           <Link href="/sign-up">
             <Button>GET STARTED FREE</Button>

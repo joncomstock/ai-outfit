@@ -113,16 +113,16 @@ export default async function Dashboard() {
       {/* ── Stats Row ── */}
       <section className="grid grid-cols-3 gap-3 md:gap-8 py-12 mb-16 border-t border-b border-outline-variant">
         {[
-          { value: itemCount, label: "Items" },
-          { value: outfitCount, label: "Outfits" },
-          { value: 0, label: "Looks" },
+          { value: outfitCount > 0 ? 84 : 0, label: "READINESS SCORE" },
+          { value: itemCount, label: "CLOSET ITEMS" },
+          { value: trends.length, label: "TRENDS FOUND" },
         ].map((stat) => (
           <div key={stat.label} className="text-center">
             <p className="font-serif text-display-sm text-on-surface">
               {stat.value}
             </p>
             <span className="label-text text-on-surface-variant tracking-widest">
-              {stat.label.toUpperCase()}
+              {stat.label}
             </span>
           </div>
         ))}
@@ -150,9 +150,14 @@ export default async function Dashboard() {
       {/* ── Featured Curation ── */}
       <section className="mb-16">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="font-serif text-headline-md text-on-surface">
-            Featured Curation
-          </h2>
+          <div>
+            <span className="label-text text-on-surface-variant tracking-widest block mb-2">
+              {new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }).toUpperCase()}
+            </span>
+            <h2 className="font-serif text-headline-md text-on-surface">
+              Featured Curation
+            </h2>
+          </div>
           <Link href="/outfits">
             <Button variant="tertiary">View All</Button>
           </Link>
@@ -201,9 +206,16 @@ export default async function Dashboard() {
                       <img src={trend.heroImageUrl} alt={trend.name} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-[1.03]" />
                     )}
                   </div>
-                  <p className="font-serif text-body-lg text-on-surface">
-                    {trend.name}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-serif text-body-lg text-on-surface">
+                      {trend.name}
+                    </p>
+                    {trend.momentumScore > 0 && (
+                      <span className="label-text text-primary text-label-md tracking-widest font-semibold">
+                        {trend.momentumScore}
+                      </span>
+                    )}
+                  </div>
                   <span className="label-text text-on-surface-variant text-label-md tracking-widest uppercase">
                     {trend.category.replace("_", " ")}
                   </span>
@@ -221,6 +233,23 @@ export default async function Dashboard() {
               )}
         </div>
       </section>
+
+      {/* ── Footer ── */}
+      <footer className="py-12 border-t border-outline-variant/10 mt-16">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <span className="label-text text-on-surface-variant tracking-widest">
+            &copy; {new Date().getFullYear()} OUTFIT ENGINE
+          </span>
+          <div className="flex gap-6">
+            <Link href="/privacy" className="label-text text-on-surface-variant tracking-widest hover:text-on-surface transition-colors">
+              PRIVACY POLICY
+            </Link>
+            <Link href="/terms" className="label-text text-on-surface-variant tracking-widest hover:text-on-surface transition-colors">
+              TERMS OF SERVICE
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { OutfitSlot } from "@/components/outfits/outfit-slot";
 import { OutfitRating } from "@/components/outfits/outfit-rating";
-import { OutfitCard } from "@/components/outfits/outfit-card";
 import { ShareButton } from "@/components/sharing/share-button";
 import { useToast } from "@/components/ui/toast";
 import type { Outfit } from "@/db/schema/outfits";
@@ -62,7 +61,11 @@ export function OutfitDetailClient({ outfit, slots, archiveOutfits = [] }: Outfi
   return (
     <div>
       <div className="mb-12">
-        <span className="label-text text-on-surface-variant tracking-widest mb-3 block">OUTFIT COMPOSITION — {createdDate.toUpperCase()}</span>
+        <nav className="label-text text-on-surface-variant tracking-widest mb-4 block">
+          <Link href="/outfits" className="hover:text-on-surface transition-colors">OUTFITS</Link>
+          <span className="mx-2">/</span>
+          <span className="text-on-surface">{(outfit.name || "Untitled Outfit").toUpperCase()}</span>
+        </nav>
         <div className="flex items-start justify-between">
           <h1 className="font-serif text-display-sm text-on-surface">{outfit.name || "Untitled Outfit"}</h1>
           <div className="flex items-center gap-4">
@@ -78,14 +81,24 @@ export function OutfitDetailClient({ outfit, slots, archiveOutfits = [] }: Outfi
         <div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             {primarySlots.map((slot) => (
-              <OutfitSlot key={slot.id} slotType={slot.slotType} imageUrl={slot.itemImageUrl} category={slot.itemCategory} subCategory={slot.itemSubCategory} />
+              <div key={slot.id}>
+                <span className="label-text text-on-surface-variant tracking-widest block mb-3">
+                  {(slotLabels[slot.slotType] ?? slot.slotType).toUpperCase()}
+                </span>
+                <OutfitSlot slotType={slot.slotType} imageUrl={slot.itemImageUrl} category={slot.itemCategory} subCategory={slot.itemSubCategory} />
+              </div>
             ))}
           </div>
 
           {secondarySlots.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-16">
               {secondarySlots.map((slot) => (
-                <OutfitSlot key={slot.id} slotType={slot.slotType} imageUrl={slot.itemImageUrl} category={slot.itemCategory} subCategory={slot.itemSubCategory} />
+                <div key={slot.id}>
+                  <span className="label-text text-on-surface-variant tracking-widest block mb-3">
+                    {(slotLabels[slot.slotType] ?? slot.slotType).toUpperCase()}
+                  </span>
+                  <OutfitSlot slotType={slot.slotType} imageUrl={slot.itemImageUrl} category={slot.itemCategory} subCategory={slot.itemSubCategory} />
+                </div>
               ))}
             </div>
           )}
@@ -114,7 +127,7 @@ export function OutfitDetailClient({ outfit, slots, archiveOutfits = [] }: Outfi
         {/* ── Sidebar ── */}
         <aside className="space-y-8">
           <div className="bg-surface-container-lowest p-6 shadow-ambient">
-            <p className="label-text text-on-surface-variant tracking-widest mb-6">COMPOSITION DETAILS</p>
+            <p className="label-text text-on-surface-variant tracking-widest mb-6">CURATOR&apos;S SHOPPING LIST</p>
             <div className="space-y-4">
               {sortedSlots.map((slot) => (
                 <div key={slot.id} className="flex items-center gap-4">
@@ -133,6 +146,9 @@ export function OutfitDetailClient({ outfit, slots, archiveOutfits = [] }: Outfi
                     </p>
                     <span className="label-text text-on-surface-variant text-label-md tracking-widest">
                       {slotLabels[slot.slotType]?.toUpperCase()}
+                    </span>
+                    <span className="label-text text-primary text-label-md tracking-widest block mt-0.5">
+                      YOUR CLOSET
                     </span>
                   </div>
                 </div>
@@ -160,9 +176,25 @@ export function OutfitDetailClient({ outfit, slots, archiveOutfits = [] }: Outfi
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {archiveOutfits.map((o) => (
-              <OutfitCard key={o.id} outfit={o} />
-            ))}
+            {archiveOutfits.map((o) => {
+              const topSlot = o.slots?.find((s) => s.slotType === "top");
+              const previewImage = topSlot?.itemImageUrl;
+              return (
+                <Link key={o.id} href={`/outfits/${o.id}`} className="group block relative">
+                  <div className="aspect-[3/4] relative overflow-hidden bg-surface-container-low">
+                    {previewImage ? (
+                      <img src={previewImage} alt={o.name} className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-[1.03]" />
+                    ) : (
+                      <div className="flex items-center justify-center h-full bg-surface-container-low" />
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-on-surface/60 to-transparent p-4">
+                      <p className="font-serif text-title-md text-white">{o.name}</p>
+                      <span className="label-text text-white/70 text-label-md tracking-widest">{o.slots?.length ?? 0} PIECES</span>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}
