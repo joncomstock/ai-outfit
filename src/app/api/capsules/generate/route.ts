@@ -4,6 +4,7 @@ import { ensureUser } from "@/lib/auth/ensure-user";
 import { createJob, updateJobStatus } from "@/lib/jobs/job-store";
 import { generateCapsule } from "@/lib/ai/generate-capsule";
 import { isPremium } from "@/lib/billing/gates";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { capsulesTable, capsuleOutfitsTable } from "@/db/schema/capsules";
 import { outfitsTable, outfitSlotsTable } from "@/db/schema/outfits";
@@ -30,10 +31,19 @@ export async function POST(req: NextRequest) {
 
   // Run generation asynchronously
   (async () => {
+    let capsuleId: string | null = null;
     try {
       await updateJobStatus(jobId, "analyzing");
 
       const result = await generateCapsule({ userId: dbUserId, season, theme });
+
+      // Validate AI response before any DB writes
+      if (!result.outfitCombinations || result.outfitCombinations.length === 0) {
+        throw new Error("Invalid capsule composition: no outfit combinations");
+      }
+      if (!result.selectedItems || result.selectedItems.length === 0) {
+        throw new Error("Invalid capsule composition: no selected items");
+      }
 
       // Save capsule to DB
       const [capsule] = await db
@@ -49,6 +59,7 @@ export async function POST(req: NextRequest) {
           aiRawResponse: result.rawResponse,
         })
         .returning();
+      capsuleId = capsule.id;
 
       // Create outfits for each combination and link them
       for (let i = 0; i < result.outfitCombinations.length; i++) {
@@ -83,6 +94,10 @@ export async function POST(req: NextRequest) {
 
       await updateJobStatus(jobId, "ready");
     } catch (err) {
+      // Clean up partial data — cascading deletes will remove child records
+      if (capsuleId) {
+        await db.delete(capsulesTable).where(eq(capsulesTable.id, capsuleId)).catch(() => {});
+      }
       const message = err instanceof Error ? err.message : "Capsule generation failed";
       await updateJobStatus(jobId, "error", message);
     }
