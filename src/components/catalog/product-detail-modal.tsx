@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/toast";
 import type { Product } from "@/db/schema/products";
+import { trackAffiliateClick } from "@/lib/analytics/events";
 
 interface ProductDetailModalProps {
   product: Product;
@@ -35,6 +36,7 @@ export function ProductDetailModal({ product, onClose }: ProductDetailModalProps
       if (!res.ok) throw new Error("Failed to track click");
 
       const { affiliateUrl } = await res.json();
+      trackAffiliateClick(product.id);
       window.open(affiliateUrl, "_blank", "noopener,noreferrer");
     } catch {
       toast("Failed to open shop link", "error");

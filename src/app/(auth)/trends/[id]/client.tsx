@@ -9,6 +9,7 @@ import { ProductDetailModal } from "@/components/catalog/product-detail-modal";
 import { useToast } from "@/components/ui/toast";
 import type { Trend } from "@/db/schema/trends";
 import type { Product } from "@/db/schema/products";
+import { trackTrendSaved } from "@/lib/analytics/events";
 
 interface TrendProduct {
   id: string;
@@ -51,6 +52,9 @@ export function TrendDetailClient({
       const method = saved ? "DELETE" : "POST";
       const res = await fetch(`/api/trends/${trend.id}/save`, { method });
       if (!res.ok) throw new Error("Failed");
+      if (!saved) {
+        trackTrendSaved(trend.id);
+      }
       setSaved(!saved);
       toast(saved ? "Trend removed from bookmarks" : "Trend bookmarked!", "success");
     } catch {

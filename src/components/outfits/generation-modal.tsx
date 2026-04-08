@@ -6,6 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import type { ClosetItem } from "@/db/schema/closet-items";
+import { trackOutfitGenerated } from "@/lib/analytics/events";
 
 interface GenerationModalProps {
   isOpen: boolean;
@@ -57,6 +58,7 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
         const data = JSON.parse(event.data);
         if (data.status === "ready") {
           eventSource.close();
+          trackOutfitGenerated(mode);
           toast("Your outfit is ready!", "success");
           router.push("/outfits");
           router.refresh();
