@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { eq, desc } from "drizzle-orm";
 import { db } from "@/db";
 import { trendsTable } from "@/db/schema/trends";
 import { ensureUser } from "@/lib/auth/ensure-user";
 import { TrendsClient } from "./client";
+
+export const metadata: Metadata = {
+  title: "Trending Styles",
+  description:
+    "Explore trending fashion styles and momentum-driven looks gaining cultural relevance.",
+};
 
 export default async function TrendsPage() {
   const { userId: clerkId } = await auth();

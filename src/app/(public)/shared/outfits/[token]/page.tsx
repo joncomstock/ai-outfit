@@ -19,11 +19,14 @@ export async function generateMetadata({ params }: SharedOutfitPageProps): Promi
     where: eq(outfitsTable.shareToken, token),
   });
   return {
-    title: outfit ? `${outfit.name || "Curated Outfit"} — Outfit Engine` : "Outfit Not Found",
-    description: "A curated outfit created with Outfit Engine, your personal AI stylist.",
+    title: outfit?.name
+      ? `${outfit.name} | Outfit Engine`
+      : "Shared Outfit | Outfit Engine",
+    description: `AI-curated outfit: ${outfit?.name || "Curated Look"}. View and shop this look.`,
     openGraph: {
       title: outfit?.name || "Curated Outfit",
-      description: "Created with Outfit Engine — AI-powered personal styling.",
+      description:
+        "AI-styled from a personal wardrobe. View and shop this look.",
       type: "article",
     },
   };

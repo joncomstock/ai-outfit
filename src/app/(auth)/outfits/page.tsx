@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
 import { eq, desc } from "drizzle-orm";
 import { db } from "@/db";
@@ -5,6 +6,12 @@ import { outfitsTable, outfitSlotsTable } from "@/db/schema/outfits";
 import { closetItemsTable } from "@/db/schema/closet-items";
 import { ensureUser } from "@/lib/auth/ensure-user";
 import { OutfitsPageClient } from "./client";
+
+export const metadata: Metadata = {
+  title: "Your Lookbook",
+  description:
+    "View your AI-generated outfits and curated looks from your wardrobe.",
+};
 
 export default async function OutfitsPage() {
   const { userId: clerkId } = await auth();

@@ -2,9 +2,14 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Outfit Engine — Your Closet, Curated by AI",
+  title: "Outfit Engine — AI-Powered Personal Styling",
   description:
     "Upload your wardrobe. Get styled by artificial intelligence. Shop the missing pieces.",
+  openGraph: {
+    title: "Outfit Engine — AI-Powered Personal Styling",
+    description:
+      "Upload your wardrobe. Get styled by AI. Shop the missing pieces.",
+  },
 };
 
 const steps = [

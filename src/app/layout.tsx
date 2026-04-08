@@ -18,9 +18,22 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Outfit Engine",
+  title: { default: "Outfit Engine", template: "%s | Outfit Engine" },
   description:
     "Your AI stylist — turn your closet into a personal styling engine",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://outfitengine.com",
+  ),
+  openGraph: {
+    type: "website",
+    siteName: "Outfit Engine",
+    title: "Outfit Engine — Your AI Stylist",
+    description:
+      "Upload your wardrobe. Get styled by AI. Shop the missing pieces.",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({
