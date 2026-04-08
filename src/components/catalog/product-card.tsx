@@ -13,7 +13,7 @@ export function ProductCard({ product, featured = false, onSelect }: ProductCard
     style: "currency",
     currency: product.currency,
     minimumFractionDigits: 0,
-  }).format(product.price);
+  }).format(product.price / 100);
 
   return (
     <button
