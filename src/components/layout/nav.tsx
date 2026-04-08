@@ -11,6 +11,7 @@ const navItems = [
   { href: "/outfits", label: "Outfits" },
   { href: "/trends", label: "Trends" },
   { href: "/catalog", label: "Catalog" },
+  { href: "/capsules", label: "Capsules" },
 ];
 
 export function Nav() {
