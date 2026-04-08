@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { ensureUser } from "@/lib/auth/ensure-user";
 import { createJob } from "@/lib/jobs/job-store";
 import { generateOutfit } from "@/lib/ai/generate-outfit";
+import { canGenerate, recordUsage } from "@/lib/billing/gates";
 
 export async function POST(req: NextRequest) {
   const { userId: clerkId } = await auth();
@@ -10,6 +11,14 @@ export async function POST(req: NextRequest) {
 
   const dbUserId = await ensureUser(clerkId);
   if (!dbUserId) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  const allowed = await canGenerate(dbUserId);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Monthly generation limit reached. Upgrade to Premium for unlimited generations." },
+      { status: 403 },
+    );
+  }
 
   const body = await req.json();
   const mode = body.mode as "for_you" | "style_this" | "trend_based";
@@ -27,7 +36,9 @@ export async function POST(req: NextRequest) {
   }
 
   const jobId = createJob("outfit-generation");
-  generateOutfit({ userId: dbUserId, mode, sourceItemId, trendId, jobId }).catch(console.error);
+  generateOutfit({ userId: dbUserId, mode, sourceItemId, trendId, jobId })
+    .then(() => recordUsage(dbUserId, "outfit_generation"))
+    .catch(console.error);
 
   return NextResponse.json({ jobId }, { status: 202 });
 }
