@@ -2,6 +2,7 @@
 
 import { useSSE } from "@/hooks/use-sse";
 import type { JobStatus } from "@/lib/jobs/job-store";
+import { trackFirstProcessed } from "@/lib/analytics/funnel";
 
 const statusMessages: Record<JobStatus, string> = {
   queued: "Preparing your item...",
@@ -22,6 +23,7 @@ export function ProcessingStatus({ jobId, onComplete }: ProcessingStatusProps) {
   const { status, error } = useSSE(jobId);
 
   if (status === "ready") {
+    trackFirstProcessed();
     onComplete?.();
   }
 

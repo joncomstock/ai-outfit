@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { trackFirstShare } from "@/lib/analytics/funnel";
 
 interface ShareButtonProps {
   outfitId: string;
@@ -26,6 +27,7 @@ export function ShareButton({ outfitId, shareToken }: ShareButtonProps) {
       if (!res.ok) throw new Error("Failed to generate share link");
       const data = await res.json();
       setToken(data.shareToken);
+      trackFirstShare();
       await copyLink(data.shareToken);
     } catch {
       toast("Failed to generate share link", "error");

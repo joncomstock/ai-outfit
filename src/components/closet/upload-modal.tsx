@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { trackItemUploaded } from "@/lib/analytics/events";
+import { trackFirstUpload } from "@/lib/analytics/funnel";
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -41,6 +42,7 @@ export function UploadModal({
         if (!res.ok) throw new Error("Upload failed");
         const { id, jobId } = await res.json();
         trackItemUploaded();
+        trackFirstUpload();
         onUploadComplete(id, jobId);
         onClose();
         toast("Item uploaded — analyzing now", "success");
@@ -66,6 +68,7 @@ export function UploadModal({
       if (!res.ok) throw new Error("Upload failed");
       const { id, jobId } = await res.json();
       trackItemUploaded();
+      trackFirstUpload();
       onUploadComplete(id, jobId);
       onClose();
       toast("Item added — analyzing now", "success");
