@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Capsule } from "@/db/schema/capsules";
 import { CapsuleCard } from "@/components/capsules/capsule-card";
 import { EmptyState } from "@/components/empty-state";
+import { PremiumBadge } from "@/components/billing/premium-badge";
 
 interface Props {
   capsules: Capsule[];
@@ -36,9 +37,12 @@ export function CapsulesClient({ capsules: initialCapsules }: Props) {
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="font-serif text-display-sm text-on-surface">
-          Capsule Wardrobes
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1 className="font-serif text-display-sm text-on-surface">
+            Capsule Wardrobes
+          </h1>
+          <PremiumBadge />
+        </div>
         <button
           onClick={handleGenerate}
           disabled={generating}

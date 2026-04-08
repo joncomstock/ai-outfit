@@ -15,7 +15,11 @@ const navItems = [
   { href: "/feed", label: "Feed" },
 ];
 
-export function Nav() {
+interface NavProps {
+  subscriptionStatus?: string;
+}
+
+export function Nav({ subscriptionStatus = "free" }: NavProps) {
   const pathname = usePathname();
 
   return (
@@ -49,6 +53,14 @@ export function Nav() {
 
         <div className="flex items-center gap-4">
           <NotificationBell />
+          {subscriptionStatus !== "premium" && (
+            <Link
+              href="/settings/subscription"
+              className="editorial-gradient px-3 py-1 text-white text-label-md uppercase tracking-widest hidden md:block"
+            >
+              Upgrade
+            </Link>
+          )}
           <Link
             href="/profile"
             className="text-body-md text-on-surface-variant hover:text-on-surface transition-colors font-sans hidden md:block"

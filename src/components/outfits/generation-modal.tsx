@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/toast";
 import type { ClosetItem } from "@/db/schema/closet-items";
 import { trackOutfitGenerated } from "@/lib/analytics/events";
 import { trackFirstOutfit } from "@/lib/analytics/funnel";
+import { UpgradePrompt } from "@/components/billing/upgrade-prompt";
 
 interface GenerationModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
   const [selectedItem, setSelectedItem] = useState<string | null>(null);
   const [trendId, setTrendId] = useState<string | null>(urlTrendId);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -46,6 +48,11 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
           trendId: mode === "trend_based" ? trendId : undefined,
         }),
       });
+      if (res.status === 403) {
+        setShowUpgrade(true);
+        setIsGenerating(false);
+        return;
+      }
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error ?? "Generation failed");
@@ -81,6 +88,12 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
   const canGenerate = readyItems.length >= 3;
 
   return (
+    <>
+    <UpgradePrompt
+      isOpen={showUpgrade}
+      onClose={() => setShowUpgrade(false)}
+      reason="You've reached your monthly limit of 5 outfit generations."
+    />
     <Modal isOpen={isOpen} onClose={onClose} title="Generate Outfit" className="max-w-xl">
       <div className="space-y-8">
         <div>
@@ -150,5 +163,6 @@ export function GenerationModal({ isOpen, onClose, closetItems = [] }: Generatio
         </div>
       </div>
     </Modal>
+    </>
   );
 }
