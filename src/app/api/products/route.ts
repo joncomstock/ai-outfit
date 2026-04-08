@@ -19,7 +19,10 @@ export async function GET(req: NextRequest) {
   const matchItemId = searchParams.get("matchItem");
   if (matchItemId) {
     const closetItem = await db.query.closetItems.findFirst({
-      where: eq(closetItemsTable.id, matchItemId),
+      where: and(
+        eq(closetItemsTable.id, matchItemId),
+        eq(closetItemsTable.userId, dbUserId),
+      ),
     });
     if (closetItem) {
       const matchLimit = Math.min(parseInt(searchParams.get("limit") ?? "4", 10), 12);
