@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import { eq, desc, count } from "drizzle-orm";
+import { eq, desc, count, and } from "drizzle-orm";
 import { db } from "@/db";
 import { usersTable } from "@/db/schema/users";
 import { closetItemsTable } from "@/db/schema/closet-items";
@@ -37,6 +37,18 @@ export default async function Dashboard() {
     .where(eq(closetItemsTable.userId, user.id));
 
   const itemCount = itemCountResult?.value ?? 0;
+
+  const [readyCountResult] = await db
+    .select({ value: count() })
+    .from(closetItemsTable)
+    .where(
+      and(
+        eq(closetItemsTable.userId, user.id),
+        eq(closetItemsTable.status, "ready")
+      )
+    );
+  const readyCount = readyCountResult?.value ?? 0;
+  const readinessScore = itemCount > 0 ? Math.round((readyCount / itemCount) * 100) : 0;
 
   const [outfitCountResult] = await db
     .select({ value: count() })
@@ -113,7 +125,7 @@ export default async function Dashboard() {
       {/* ── Stats Row ── */}
       <section className="grid grid-cols-3 gap-3 md:gap-8 py-12 mb-16 border-t border-b border-outline-variant">
         {[
-          { value: outfitCount > 0 ? 84 : 0, label: "READINESS SCORE" },
+          { value: readinessScore, label: "READINESS SCORE" },
           { value: itemCount, label: "CLOSET ITEMS" },
           { value: trends.length, label: "TRENDS FOUND" },
         ].map((stat) => (
