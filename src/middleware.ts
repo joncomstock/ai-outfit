@@ -7,6 +7,8 @@ const isPublicRoute = createRouteMatcher([
   "/shared/(.*)",
   "/api/webhooks/(.*)",
   "/api/shared/(.*)",
+  "/sitemap.xml",
+  "/robots.txt",
 ]);
 
 export default clerkMiddleware(
