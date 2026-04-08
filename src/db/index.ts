@@ -9,6 +9,9 @@ import { affiliateClicksTable } from "./schema/affiliate";
 import { notificationsTable } from "./schema/notifications";
 import { fitProfilesTable } from "./schema/fit-profiles";
 import { capsulesTable, capsuleOutfitsTable } from "./schema/capsules";
+import { followsTable } from "./schema/follows";
+import { activitiesTable } from "./schema/activities";
+import { likesTable } from "./schema/likes";
 
 const sql = neon(process.env.DATABASE_URL!);
 
@@ -27,5 +30,8 @@ export const db = drizzle(sql, {
     fitProfiles: fitProfilesTable,
     capsules: capsulesTable,
     capsuleOutfits: capsuleOutfitsTable,
+    follows: followsTable,
+    activities: activitiesTable,
+    likes: likesTable,
   },
 });
