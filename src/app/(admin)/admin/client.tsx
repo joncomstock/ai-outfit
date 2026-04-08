@@ -15,6 +15,12 @@ interface Stats {
   range: string;
 }
 
+interface RevenueData {
+  totalClicks: number;
+  byProvider: Record<string, number>;
+  clicks: Array<{ provider: string | null; date: string; count: number }>;
+}
+
 const TIME_RANGES = [
   { value: "7d", label: "7 Days" },
   { value: "30d", label: "30 Days" },
@@ -26,6 +32,7 @@ export function AdminDashboardClient() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [range, setRange] = useState("all");
+  const [revenue, setRevenue] = useState<RevenueData | null>(null);
 
   const fetchStats = async (timeRange: string) => {
     setLoading(true);
@@ -43,6 +50,13 @@ export function AdminDashboardClient() {
   useEffect(() => {
     fetchStats(range);
   }, [range]);
+
+  useEffect(() => {
+    fetch("/api/admin/revenue")
+      .then((r) => r.json())
+      .then(setRevenue)
+      .catch(console.error);
+  }, []);
 
   return (
     <div>
@@ -109,6 +123,27 @@ export function AdminDashboardClient() {
       ) : (
         <p className="text-body-md text-error">Failed to load stats.</p>
       )}
+
+      {/* Affiliate Revenue */}
+      <section className="bg-surface-container p-6 mt-8">
+        <h2 className="font-serif text-headline-md text-on-surface mb-4">Affiliate Revenue</h2>
+        {revenue ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-surface-container-low p-4">
+              <p className="label-text text-on-surface-variant">Total Clicks</p>
+              <p className="font-serif text-display-sm text-on-surface">{revenue.totalClicks}</p>
+            </div>
+            {Object.entries(revenue.byProvider).map(([provider, count]) => (
+              <div key={provider} className="bg-surface-container-low p-4">
+                <p className="label-text text-on-surface-variant">{provider}</p>
+                <p className="font-serif text-display-sm text-on-surface">{count} clicks</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-body-md text-on-surface-variant">Loading...</p>
+        )}
+      </section>
 
       {/* Stream of Activity */}
       <section className="mt-12">
