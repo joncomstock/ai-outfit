@@ -3,6 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { ensureUser } from "@/lib/auth/ensure-user";
 import { createJob, updateJobStatus } from "@/lib/jobs/job-store";
 import { generateCapsule } from "@/lib/ai/generate-capsule";
+import { isPremium } from "@/lib/billing/gates";
 import { db } from "@/db";
 import { capsulesTable, capsuleOutfitsTable } from "@/db/schema/capsules";
 import { outfitsTable, outfitSlotsTable } from "@/db/schema/outfits";
@@ -13,6 +14,14 @@ export async function POST(req: NextRequest) {
 
   const dbUserId = await ensureUser(clerkId);
   if (!dbUserId) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+  const premium = await isPremium(dbUserId);
+  if (!premium) {
+    return NextResponse.json(
+      { error: "Capsule wardrobe generation requires Premium. Upgrade to unlock this feature." },
+      { status: 403 },
+    );
+  }
 
   const body = await req.json();
   const { season, theme } = body as { season?: string; theme?: string };
