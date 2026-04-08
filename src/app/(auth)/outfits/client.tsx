@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 import { OutfitCard } from "@/components/outfits/outfit-card";
@@ -15,6 +16,14 @@ interface OutfitsPageClientProps {
 
 export function OutfitsPageClient({ outfits, closetItems }: OutfitsPageClientProps) {
   const [showGenerate, setShowGenerate] = useState(false);
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const mode = searchParams.get("mode");
+    if (mode === "trend_based" || mode === "style_this") {
+      setShowGenerate(true);
+    }
+  }, [searchParams]);
 
   return (
     <div>
