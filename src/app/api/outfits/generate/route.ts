@@ -35,9 +35,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "trendId required for trend_based mode" }, { status: 400 });
   }
 
+  // Reserve usage atomically BEFORE starting the job to prevent concurrent limit bypass
+  await recordUsage(dbUserId, "outfit_generation");
+
   const jobId = await createJob();
   generateOutfit({ userId: dbUserId, mode, sourceItemId, trendId, jobId })
-    .then(() => recordUsage(dbUserId, "outfit_generation"))
     .catch(console.error);
 
   return NextResponse.json({ jobId }, { status: 202 });
